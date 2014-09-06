@@ -21,9 +21,10 @@ def iterateOverFolders(startFolder, endFolder):
                 fileContent = content_file.read().strip()
             try:
                 print filePath
-                parser.parseHtml(fileContent)
-                wordList = parser.getTerms()
-                indexBuilder.buildIndex(int(fileName), wordList)
+                if(len(fileContent)>0):
+                    parser.parseHtml(fileContent.decode('utf-8','replace').encode('utf-8'))
+                    wordList = parser.getTerms()
+                    indexBuilder.buildIndex(int(fileName), wordList)
             except:
                 errorLog.write(filePath+"\n")
         indexBuilder.writeIndex(indexDir+('%03d' % folderNumber))
