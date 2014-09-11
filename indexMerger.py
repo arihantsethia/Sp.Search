@@ -39,8 +39,7 @@ class IndexMerger:
             os.remove(currDir + str(dirList[i]))
             os.remove(currDir+str(dirList[i+1]))
             print(newIndexname, '%03d'%(i/2) )
-            os.rename(currDir +newIndexname, currDir + '%03d'%(i/2))
-            
+            os.rename(currDir +newIndexname, currDir + '%03d'%(i/2))  
 
 indexMerger = IndexMerger()
-indexMerger.mergeMultiple('merger')
+indexMerger.mergeMultiple('merger') #Name of the folders from which indices has to be merged

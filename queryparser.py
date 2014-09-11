@@ -1,0 +1,121 @@
+import ply.lex as lex
+import ply.yacc as yacc
+import queryeval
+
+tokens = (
+    'NAME',
+    'PLUS','MINUS','DIVIDE',
+    'LPAREN','RPAREN', 'QUOTE', 
+    )
+
+# Tokens
+t_PLUS    = r'\+'
+t_MINUS   = r'-'
+t_DIVIDE  = r'/'
+t_LPAREN  = r'\('
+t_RPAREN  = r'\)'
+t_QUOTE   = r'"'
+t_NAME    = r'[a-zA-Z0-9_][a-zA-Z0-9_]*'
+
+# Ignored characters
+t_ignore = " \t"
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += t.value.count("\n")
+    
+def t_error(t):
+    print("Illegal character '%s'" % t.value[0])
+    t.lexer.skip(1)
+    
+# Build the lexer
+lex.lex()
+
+# Parsing rules
+precedence = (
+    ('left', 'DIVIDE'),
+    ('left','PLUS'),
+    ('left', 'MINUS')
+    )
+
+names = dict()
+
+def p_statement_expr(t):
+    'statement : expression'
+    queryeval.getRanking(t[1])
+    t[0] = t[1]
+
+def p_statement_end(t):
+    'words : NAME'
+    t[0] = t[1]
+
+def p_statement_words(t):
+    'words : NAME words'              
+    t[0] = t[1] + " " + t[2]
+
+def p_expression_phrase(t):
+    'expression : QUOTE words QUOTE'
+    res1 = queryeval.get_tfscore_phrase(t[2])
+    t[0] = res1
+
+def p_expression_or(t):
+    'expression : expression DIVIDE expression'
+    print "Evaluation OR " 
+    res1 = t[1]
+    res2 = t[3]    
+    res3 = dict()
+
+    for document in res1:
+        res3[document] = res1[document]
+    for document in res2:
+        if res1.has_key(document):
+            res3[document] += res2[document]
+        else:
+            res3[document] = res2[document]
+    t[0] = res3
+
+def p_expression_and(t):
+    'expression : expression PLUS expression'
+    print "Evaluation AND  " 
+    res1 = t[1]
+    res2 = t[3]
+    res3 = dict()
+
+    for document in res1:
+        if res2.has_key(document):
+            res3[document] = res1[document] + res2[document]
+
+    t[0] = res3
+
+def p_expression_not(t):
+    'expression : expression MINUS expression'
+    print "Evaluation NOT  " 
+    res1 = t[1]
+    res2 = t[3]
+    res3 = dict()
+
+    for document in res1:
+        if not(res2.has_key(document)):
+            res3[document] = res1[document]
+
+    t[0] = res3
+
+def p_expression_group(t):
+    'expression : LPAREN expression RPAREN'
+    t[0] = t[2]
+
+def p_expression_name(t):
+    'expression : NAME'
+    t[0] =queryeval.get_tfscore(t[1])
+
+def p_error(t):
+    print("Syntax error at '%s'" % t.value)
+
+yacc.yacc()
+
+while 1:
+    try:
+        s = raw_input('query > ')   # Use raw_input on Python 2
+    except EOFError:
+        break
+    yacc.parse(s)

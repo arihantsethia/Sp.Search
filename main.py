@@ -3,7 +3,7 @@ import htmlparser, indexbuilder
 
 rootDir = '/home/arihant/Github/Sp.Search/dataset/'
 indexDir = rootDir + 'indices/'
-errorLogFile = rootDir + 'error.log'
+errorLogFile = rootDir + 'errors/error.log'
 
 parser = htmlparser.HtmlParser()
 
