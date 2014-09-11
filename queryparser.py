@@ -125,7 +125,7 @@ yacc.yacc()
 
 while 1:
     try:
-		mode = int(raw_input("Enter mode 1(tf) 2(tfidf) 3(bm25)"))   
+	mode = int(raw_input("Enter mode 1(tf) 2(tfidf) 3(bm25)"))   
         s = raw_input('query > ')   # Use raw_input on Python 2
     except EOFError:
         break
