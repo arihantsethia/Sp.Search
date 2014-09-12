@@ -7,21 +7,20 @@ class IndexBuilder:
 		gc.disable()
 		return
 
-	def buildIndex(self, fileId, wordList):
-		print len(self.index)
-		for pos in xrange(0,len(wordList)):
-			self.index[wordList[pos]][fileId].append(pos)
+	def build_index(self, fileId, word_list):
+		for pos in xrange(0,len(word_list)):
+			self.index[word_list[pos]][fileId].append(pos)
 		return
 
-	def writeIndex(self, fileLocation):
-		fileDictionary = shelve.open(fileLocation)
+	def write_index(self, file_location):
+		file_dict = shelve.open(file_location)
 		for key,value in self.index.iteritems():
-			fileDictionary[key.encode('utf-8')] = value
-		fileDictionary.close()
+			file_dict[key.encode('utf-8')] = value
+		file_dict.close()
 
-	def deleteIndex(self):
+	def delete_index(self):
 		del self.index
 		gc.collect()
 
-	def getIndex(self):
+	def get_index(self):
 		return self.index

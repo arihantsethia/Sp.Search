@@ -1,45 +1,45 @@
-import urllib, re
+import urllib, re, os
 from nltk import PorterStemmer
-from nltk.corpus import stopwords
 from lxml import html
 from lxml.html.clean import clean_html
 from bs4 import BeautifulSoup, Comment
 
-porter = PorterStemmer()
 
 class HtmlParser:
-    containsStopWords = None
-    stopWordsFile = None
-    stopWords = None
+	contains_stop_words = None
+	stop_words_file = None
+	stop_words = None
+	porter = None
 
-    def getStopwords(self):
-        '''get stopwords from the stopwords file'''
-        f=open(self.stopWordsFile, 'r')
-        stopWords=[line.rstrip() for line in f]
-        self.stopWords=dict.fromkeys(stopWords)
-        f.close()
+	def get_stop_words(self):
+		'''get stop_words from the stop_words file'''
+		f=open(os.path.join(os.path.dirname(__file__), self.stop_words_file), 'r')
+		stop_words=[line.rstrip() for line in f]
+		self.stop_words=dict.fromkeys(stop_words)
+		f.close()
 
-    def getTerms(self):
-        htmlString = self.htmlString.lower()
-        htmlString = re.sub(r'[^a-z0-9 ]',' ',htmlString) #put spaces instead of non-alphanumeric characters
-        htmlString = htmlString.split()
-        if(not self.containsStopWords) :
-            htmlString = [x for x in htmlString if x not in self.stopWords]  #eliminate the stopwords
-        htmlString = [ porter.stem(word) for word in htmlString]
-        return htmlString
+	def get_terms(self):
+		html_string = self.html_string.lower()
+		html_string = re.sub(r'[^a-z0-9 ]',' ',html_string)
+		html_string = html_string.split()
+		if(not self.contains_stop_words) :
+			html_string = [x for x in html_string if x not in self.stop_words]
+		html_string = [ self.porter.stem(word) for word in html_string]
+		return html_string
 
-    def parseHtml(self, htmlString):
-        htmlTree = clean_html(html.fromstring(htmlString.replace("<br>","")))
-        self.htmlString = htmlTree.text_content()
+	def parse_html(self, html_string):
+		html_tree = clean_html(html.fromstring(html_string.replace("<br>","")))
+		self.html_string = html_tree.text_content()
 
-    def parseHtmlBeautifulSoup(self, htmlString):
-        soup = BeautifulSoup(htmlString)
-        [s.extract() for s in soup(['style', 'script', '[document]', 'head', 'title'])]
-        self.htmlString = soup.getText()
+	def parse_html_BeautifulSoup(self, html_string):
+		soup = BeautifulSoup(html_string)
+		[s.extract() for s in soup(['style', 'script', '[document]', 'head', 'title'])]
+		self.html_string = soup.getText()
 
-    def __init__ (self, _stopWordsFile = "stopWords.txt", _containsStopWords=False):
-        self.containsStopWords = _containsStopWords
-        self.htmlString = ""
-        self.stopWordsFile = _stopWordsFile;
-        self.getStopwords()
-        return
+	def __init__ (self, _stop_words_file = "stopWords.txt", _contains_stop_words=False):
+		self.contains_stop_words = _contains_stop_words
+		self.html_string = ""
+		self.stop_words_file = _stop_words_file;
+		self.get_stop_words()
+		self.porter = PorterStemmer()
+		return
