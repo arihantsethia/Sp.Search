@@ -1,9 +1,10 @@
 from operator import itemgetter
 import re, shelve, math
 from sets import Set
-#from nltk import PorterStemmer
-#from nltk.corpus import stopwords
+from nltk import PorterStemmer
+from nltk.corpus import stopwords
 
+porter = PorterStemmer()
 
 class Query(object):
 	totalNumberOfDocuments = 1500000 #Change it once we get the actual value 
@@ -14,6 +15,9 @@ class Query(object):
 
 	def __init__ (self, terms):
 		self.index={}
+
+		terms = [porter.stem(word) for word in terms]
+
 		full_index = shelve.open("Data/indices/107")
 		for term in terms:
 			if full_index.has_key(term):
@@ -33,7 +37,10 @@ class Query(object):
 		if self.index.has_key(term):
 			postlist = self.index[term]
 			numberOfDocuments = len(postlist)
-			idf = math.log(self.totalNumberOfDocuments/numberOfDocuments)
+			if numberOfDocuments==0:
+				idf=0
+			else:
+				idf = math.log(self.totalNumberOfDocuments/numberOfDocuments)
 			for document in postlist:
 				freq = len(postlist[document])
 				score[document] = freq*idf
@@ -56,7 +63,10 @@ class Query(object):
 		if self.index.has_key(term):
 			postlist=self.index[term]
 			numberOfDocuments = len(postlist)
-			idf = math.log((self.totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
+			if numberOfDocuments==0:
+				idf = 0
+			else:
+				idf = math.log((self.totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
 			for document in postlist:
 				if lendata.has_key(str(document)):
 					doclen = lendata[str(document)]
@@ -104,7 +114,10 @@ class Query(object):
 					tf[document] = count
 					
 		numberOfDocuments = len(tf)
-		idf = math.log(self.totalNumberOfDocuments/numberOfDocuments)
+		if numberOfDocuments==0:
+			idf=0
+		else:
+			idf = math.log(self.totalNumberOfDocuments/numberOfDocuments)
 		for document in tf:
 			score[document] = tf[document]*idf
 		
@@ -178,9 +191,11 @@ class Query(object):
 						count += 1
 				if count>0:
 					tf[document] = count
-			
 		numberOfDocuments = len(tf)
-		idf = math.log((self.totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
+		if numberOfDocuments==0:
+			idf = 0
+		else:
+			idf = math.log((self.totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
 		for document in tf:
 			if lendata.has_key(str(document)):
 				doclen = lendata[str(document)]
