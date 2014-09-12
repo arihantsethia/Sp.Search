@@ -42,7 +42,7 @@ names = dict()
 
 def p_statement_expr(t):
     'statement : expression'
-    queryeval.getRanking(t[1])
+    query.getRanking(t[1])
     t[0] = t[1]
 
 def p_statement_end(t):
@@ -56,11 +56,11 @@ def p_statement_words(t):
 def p_expression_phrase(t):
     'expression : QUOTE words QUOTE'
     if mode==1:
-	res1 = queryeval.get_tfscore_phrase(t[2])
+	res1 = query.get_tfscore_phrase(t[2])
     elif mode==2:
-	res1 = queryeval.get_tfidfscore_phrase(t[2])
+	res1 = query.get_tfidfscore_phrase(t[2])
     elif mode==3:
-	res1 = queryeval.get_bm25score_phrase(t[2])
+	res1 = query.get_bm25score_phrase(t[2])
     t[0] = res1
 
 def p_expression_or(t):
@@ -112,11 +112,11 @@ def p_expression_group(t):
 def p_expression_name(t):
     'expression : NAME'
     if mode==1:
-	t[0] =queryeval.get_tfscore(t[1])
+	t[0] =query.get_tfscore(t[1])
     elif mode==2:
-	t[0] =queryeval.get_tfidfscore(t[1])
+	t[0] =query.get_tfidfscore(t[1])
     elif mode==3:
-	t[0] =queryeval.get_bm25score(t[1])
+	t[0] =query.get_bm25score(t[1])
 
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
@@ -129,4 +129,15 @@ while 1:
         s = raw_input('query > ')   # Use raw_input on Python 2
     except EOFError:
         break
+    
+    lex.input(s)
+    terms=[]
+    while 1:
+        tok = lex.token()
+
+        if not tok: break
+        if tok.type=="NAME":
+            terms.append(tok.value)
+    print terms
+    query = queryeval.Query(terms)
     yacc.parse(s)

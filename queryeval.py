@@ -4,207 +4,201 @@ from sets import Set
 #from nltk import PorterStemmer
 #from nltk.corpus import stopwords
 
-index = shelve.open("Data/indices/107")
-totalNumberOfDocuments = 1500000 #Change it once we get the actual value 
-averageLength = 334
-k=2.0
-b=0.75
 
-# def ranktfidf (query):
-# 	rval = []
-# 	words = query;
-# 	tfScore = []
-# 	tfIdfScore = []
-# 	for word in words:
-# 		if index.has_key(word):
-# 			postlist = index[word]
-# 			numberOfDocuments = len(postlist)
-# 			for document in postlist:
-# 				length = len(postlist[document])
-# 				tfScore.append( (length , document) )
-# 				tfIdfScore.append( ( (length * (math.log(totalNumberOfDocuments/numberOfDocuments))), document))
-
-# 	tfScore.sort(reverse=True)
-# 	tfIdfScore.sort(reverse=True)
-# 	return (tfScore, tfIdfScore)
-
-def get_tfidfscore(term):
-	score={}
-	if index.has_key(term):
-		postlist = index[term]
-		numberOfDocuments = len(postlist)
-		idf = math.log(totalNumberOfDocuments/numberOfDocuments)
-		for document in postlist:
-			freq = len(postlist[document])
-			score[document] = freq*idf
-	return score
-
-def get_tfidfscore_phrase(phrase):
-	tf={}
-	score = {}
-	ph = phrase.split()
-	if index.has_key(ph[0]):
-		postlist = index[ph[0]]
-		for document in postlist:
-			count = 0
-			
-			#print type(document)
-			for pos in index[ph[0]][document]:
-				flag = True
-				last = pos
-				for x in xrange(1, len(ph)):
-					
-					if index.has_key(ph[x]):
-						
-						if  (last+1) in index[ph[x]][document]:
-							last = last + 1
-							#print "sda"
-							
-						else:
-							flag = False
-							break
-					else:
-						flag = False
-						break		
-				if flag:
-					count += 1
-			if count>0:
-				tf[document] = count
-				
-	numberOfDocuments = len(tf)
-	idf = math.log(totalNumberOfDocuments/numberOfDocuments)
-	for document in tf:
-		score[document] = tf[document]*idf
+class Query(object):
+	totalNumberOfDocuments = 1500000 #Change it once we get the actual value 
+	averageLength = 334
+	k=2.0
+	b=0.75
 	
-	return score
+
+	def __init__ (self, terms):
+		self.index={}
+		full_index = shelve.open("Data/indices/107")
+		for term in terms:
+			if full_index.has_key(term):
+				self.index[term] = full_index[term]
+
+		return
+
+	def getRanking(self, score):
+		rank = sorted(score.items(), key=lambda x:x[1], reverse=True)
+		#score.sort(reverse=True)
+		print rank
+		return rank
+
+
+	def get_tfidfscore(self, term):
+		score={}
+		if self.index.has_key(term):
+			postlist = self.index[term]
+			numberOfDocuments = len(postlist)
+			idf = math.log(self.totalNumberOfDocuments/numberOfDocuments)
+			for document in postlist:
+				freq = len(postlist[document])
+				score[document] = freq*idf
+		return score
+
+
+	def get_tfscore(self, term):
+		score={}
+		if self.index.has_key(term):
+			postlist = self.index[term]
+			for document in postlist:
+				score[document] = len(postlist[document])
+		return score
 
 
 
+	def get_bm25score(self, term):
+		lendata = shelve.open('Data/length')
+		score ={}
+		if self.index.has_key(term):
+			postlist=self.index[term]
+			numberOfDocuments = len(postlist)
+			idf = math.log((self.totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
+			for document in postlist:
+				if lendata.has_key(str(document)):
+					doclen = lendata[str(document)]
+				else:
+					doclen = self.averageLength
+				tf = len(postlist[document])
+				bm25score = idf*(tf*(self.k+1)/(tf + self.k*(1-self.b+ self.b*(doclen/self.averageLength))))
+				if bm25score<0:
+					bm25score = 0
+				score[document] = bm25score
+				
+		return score
 
-
-
-
-def get_tfscore_phrase(phrase):
-	score = {}
-	ph = phrase.split()
-	if index.has_key(ph[0]):
-		postlist = index[ph[0]]
-		for document in postlist:
-			count = 0
-			
-			#print type(document)
-			for pos in index[ph[0]][document]:
-				flag = True
-				last = pos
-				for x in xrange(1, len(ph)):
-					
-					if index.has_key(ph[x]):
+	
+	def get_tfidfscore_phrase(self, phrase):
+		tf={}
+		score = {}
+		ph = phrase.split()
+		if self.index.has_key(ph[0]):
+			postlist = self.index[ph[0]]
+			for document in postlist:
+				count = 0
+				
+				#print type(document)
+				for pos in self.index[ph[0]][document]:
+					flag = True
+					last = pos
+					for x in xrange(1, len(ph)):
 						
-						if  (last+1) in index[ph[x]][document]:
-							last = last + 1
-							#print "sda"
+						if self.index.has_key(ph[x]):
 							
+							if  (last+1) in self.index[ph[x]][document]:
+								last = last + 1
+								#print "sda"
+								
+							else:
+								flag = False
+								break
 						else:
 							flag = False
-							break
-					else:
-						flag = False
-						break		
-				if flag:
-					count += 1
-			if count>0:
-				score[document] = count
-	return score
-
-def get_bm25score_phrase(phrase):
-	lendata = shelve.open('Data/length')
-	score = {}
-	tf={}
-	ph = phrase.split()
-	if index.has_key(ph[0]):
-		postlist = index[ph[0]]
-		
-		for document in postlist:
-			count = 0
-			
-			
-			
-			#print type(document)
-			for pos in index[ph[0]][document]:
-				flag = True
-				last = pos
-				for x in xrange(1, len(ph)):
+							break		
+					if flag:
+						count += 1
+				if count>0:
+					tf[document] = count
 					
-					if index.has_key(ph[x]):
+		numberOfDocuments = len(tf)
+		idf = math.log(self.totalNumberOfDocuments/numberOfDocuments)
+		for document in tf:
+			score[document] = tf[document]*idf
+		
+		return score
+
+
+	def get_tfscore_phrase(self, phrase):
+		score = {}
+		ph = phrase.split()
+		if self.index.has_key(ph[0]):
+			postlist = self.index[ph[0]]
+			for document in postlist:
+				count = 0
+				
+				#print type(document)
+				for pos in self.index[ph[0]][document]:
+					flag = True
+					last = pos
+					for x in xrange(1, len(ph)):
 						
-						if  (last+1) in index[ph[x]][document]:
-							last = last + 1
-							#print "sda"
+						if self.index.has_key(ph[x]):
 							
+							if  (last+1) in self.index[ph[x]][document]:
+								last = last + 1
+								#print "sda"
+								
+							else:
+								flag = False
+								break
 						else:
 							flag = False
-							break
-					else:
-						flag = False
-						break		
-				if flag:
-					count += 1
-			if count>0:
-				tf[document] = count
-		
-	numberOfDocuments = len(tf)
-	idf = math.log((totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
-	for document in tf:
-		if lendata.has_key(str(document)):
-			doclen = lendata[str(document)]
-		else:
-			doclen = averageLength
-		bm25score = idf*(tf[document]*(k+1)/(tf[document] + k*(1-b+ b*(doclen/averageLength))))
-		if bm25score<0:
-			bm25score=0
-		score[document] = bm25score
-	return score
-		
+							break		
+					if flag:
+						count += 1
+				if count>0:
+					score[document] = count
+		return score
 
-
-
-
-def get_tfscore(term):
-	score={}
-	if index.has_key(term):
-		postlist = index[term]
-		for document in postlist:
-			score[document] = len(postlist[document])
-	return score
-
-def get_bm25score(term):
-	lendata = shelve.open('Data/length')
-	score ={}
-	if index.has_key(term):
-		postlist=index[term]
-		numberOfDocuments = len(postlist)
-		idf = math.log((totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
-		for document in postlist:
+	def get_bm25score_phrase(self, phrase):
+		lendata = shelve.open('Data/length')
+		score = {}
+		tf={}
+		ph = phrase.split()
+		if self.index.has_key(ph[0]):
+			postlist = self.index[ph[0]]
+			
+			for document in postlist:
+				count = 0
+				
+				
+				
+				#print type(document)
+				for pos in self.index[ph[0]][document]:
+					flag = True
+					last = pos
+					for x in xrange(1, len(ph)):
+						
+						if self.index.has_key(ph[x]):
+							
+							if  (last+1) in self.index[ph[x]][document]:
+								last = last + 1
+								#print "sda"
+								
+							else:
+								flag = False
+								break
+						else:
+							flag = False
+							break		
+					if flag:
+						count += 1
+				if count>0:
+					tf[document] = count
+			
+		numberOfDocuments = len(tf)
+		idf = math.log((self.totalNumberOfDocuments - numberOfDocuments + 0.5)/(numberOfDocuments+0.5), 2)
+		for document in tf:
 			if lendata.has_key(str(document)):
 				doclen = lendata[str(document)]
 			else:
-				doclen = averageLength
-			tf = len(postlist[document])
-			bm25score = idf*(tf*(k+1)/(tf + k*(1-b+ b*(doclen/averageLength))))
+				doclen = self.averageLength
+			bm25score = idf*(tf[document]*(self.k+1)/(tf[document] + self.k*(1-self.b+ self.b*(doclen/self.averageLength))))
 			if bm25score<0:
-				bm25score = 0
+				bm25score=0
 			score[document] = bm25score
+		return score
 			
-	return score
-			
-		
 
 
-def getRanking(score):
-	rank = sorted(score.items(), key=lambda x:x[1], reverse=True)
-	#score.sort(reverse=True)
-	print rank
-	return rank
+
+
+
+
+
 
 
 
