@@ -7,9 +7,9 @@ class IndexBuilder:
 		gc.disable()
 		return
 
-	def build_index(self, fileId, word_list):
+	def build_index(self, file_id, word_list):
 		for pos in xrange(0,len(word_list)):
-			self.index[word_list[pos]][fileId].append(pos)
+			self.index[word_list[pos]][file_id].append(pos)
 		return
 
 	def write_index(self, file_location):
