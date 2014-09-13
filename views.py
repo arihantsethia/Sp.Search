@@ -46,8 +46,19 @@ def search_results():
 		processing_time = stats['processing_time']
 	results = generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)	
 	data = {}
-	data['a']=12
-	data['b']=123
+	data['scoringMethod']=scoring_method
+	data['results']=[{},{}]
+	
+	data['results'][0]['url']='sadsad'
+	data['results'][0]['title']=123
+	data['results'][0]['rank']=1
+	data['results'][0]['content']="sadsda"
+	# data['results'][1]={}
+	data['results'][1]['url']='sadad'
+	data['results'][1]['title']=2313
+	data['results'][1]['rank']=2
+	data['results'][1]['content']="eqwe"
+	data['query_id']=str(query_id)
 	return json.dumps(data)
 
 @views.route('/about')
