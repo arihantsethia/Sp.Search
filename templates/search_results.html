@@ -9,7 +9,7 @@
 	  <span class="icon-bar"></span>
 	  <span class="icon-bar"></span>
 	</button>
-	<a class="navbar-brand" href="#">Sp.Search</a>
+	<a class="navbar-brand" href="/">Sp.Search</a>
   </div>
 
   <!-- Collect the nav links, forms, and other content for toggling -->
@@ -17,23 +17,25 @@
 	<div class="col-sm-8 col-md-8">
 		<form class="navbar-form" role="search">
 			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Search" name="q">
+				<input type="hidden" name="stopWords" id="stopWords" value="N">
+                <input type="hidden" name="stemming" id="stemming" value="Y">
+				<input type="text" class="form-control" placeholder="Search" name="query">
 				<div class="input-group-btn">
 					<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
-				<div id="radioBtn" class="btn-group radioBtn">
-					<a class="btn btn-primary btn-sm notActive" data-toggle="happy" data-title="Y">YES</a>
-					<a class="btn btn-primary btn-sm active" data-toggle="happy" data-title="N">NO</a>
+				<div id="radioBtn" class="btn-group radioBtn" name="stop">
+					<a class="btn btn-primary btn-sm notActive" data-toggle="stopWords" data-title="Y">YES</a>
+					<a class="btn btn-primary btn-sm active" data-toggle="stopWords" data-title="N">NO</a>
 				</div> 
 			</div>
 			<div class="form-group">
 				<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stem Words:</label>
 				<div id="radioBtn2" class="btn-group radioBtn">
-					<a class="btn btn-primary btn-sm active" data-toggle="happy2" data-title="Y">YES</a>
-					<a class="btn btn-primary btn-sm notActive" data-toggle="happy2" data-title="N">NO</a>
+					<a class="btn btn-primary btn-sm active" data-toggle="stemming" data-title="Y">YES</a>
+					<a class="btn btn-primary btn-sm notActive" data-toggle="stemming" data-title="N">NO</a>
 				</div>
 			</div>
 		</form>
@@ -43,13 +45,16 @@
 <div class="container-full">
 <div class="row">
 	<div class="col-md-4">
-		<h2>TF Rankings</h2>
+		<h3><span class="label label-default">TF</span></h3>
+		<div id="resultstf"></div>
 	</div>
 	<div class="col-md-4">
-		<h2>TF-IDF Rankings</h2>
+		<h3><span class="label label-default">TF-IDF</span></h3>
+		<div id="resultstfidf"></div>
 	</div>
 	<div class="col-md-4">
-		<h2>BM-25 Rankings</h2>
+		<h3><span class="label label-default">BM-25</span></h3>
+		<div id="resultsbm"></div>
 	</div>
 </div>
 </div>
@@ -57,21 +62,63 @@
 <script type=text/javascript>
 	$( document ).ready(function() {
 		console.log( "ready!" );
+
 		$.getJSON('/search_results', {
 					query: getParameterByName('query'),
 					stemming : getParameterByName('stemming'),
 					stopWords : getParameterByName('stopWords'),
 					scoringMethod: 'tf',
 					}, function(data) {
-						
-						<div class="panel panel-default">
-							<div class="panel-body">
-
-							</div>
-						</div>  
-					});
+						var ni = document.getElementById('resultstf');
+						for (var prop in data['results']) 
+						{
+							console.log(prop);
+							var newdiv = document.createElement('div');
+							var htmlpanel = '<div class="panel panel-default"><div class="panel-heading">';
+							htmlpanel += '<h3 class="panel-title"><a href="'+data['results'][prop]['url']+'">'+data['results'][prop]['rank']+' '+data['results'][prop]['title']+'</a></h3>';
+							htmlpanel += '</div><div class="panel-body">'+data['results'][prop]['content']+'</div></div></div>';
+							newdiv.innerHTML = htmlpanel;
+							ni.appendChild(newdiv);
+						 }
+			});
+		
+		$.getJSON('/search_results', {
+					query: getParameterByName('query'),
+					stemming : getParameterByName('stemming'),
+					stopWords : getParameterByName('stopWords'),
+					scoringMethod: 'tfidf',
+					}, function(data) {
+						var ni = document.getElementById('resultstfidf');
+						for (var prop in data['results']) 
+						{
+							console.log(prop);
+							var newdiv = document.createElement('div');
+							var htmlpanel = '<h3 class="panel-title"><a href="'+data['results'][prop]['url']+'">'+data['results'][prop]['rank']+' '+data['results'][prop]['title']+'</a></h3>';
+							htmlpanel += data['results'][prop]['content'];
+							newdiv.innerHTML = htmlpanel;
+							ni.appendChild(newdiv);
+						 }
+		
+		});$.getJSON('/search_results', {
+					query: getParameterByName('query'),
+					stemming : getParameterByName('stemming'),
+					stopWords : getParameterByName('stopWords'),
+					scoringMethod: 'tf',
+					}, function(data) {
+						var ni = document.getElementById('resultsbm');
+						for (var prop in data['results']) 
+						{
+							console.log(prop);
+							var newdiv = document.createElement('div');
+							var htmlpanel = '<div class="panel panel-default"><div class="panel-heading">';
+							htmlpanel += '<h3 class="panel-title"><a href="'+data['results'][prop]['url']+'">'+data['results'][prop]['rank']+' '+data['results'][prop]['title']+'</a></h3>';
+							htmlpanel += '</div><div class="panel-body">'+data['results'][prop]['content']+'</div></div></div>';
+							newdiv.innerHTML = htmlpanel;
+							ni.appendChild(newdiv);
+						 }
+			});
+		
 		});
-
 		function getParameterByName(name) {
 				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
 				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -79,6 +126,19 @@
 				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 		};
 		
+		$('input[name="stop"]').change(function(){
+			console.log('chan');
+  			 $('#stopWords').val($(this).val())
+		});
+
+		$('.radioBtn a').on('click', function(){
+          var sel = $(this).data('title');
+          var tog = $(this).data('toggle');
+          $('#'+tog).prop('value', sel);
+          
+          $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
+          $('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
+      });
 </script>
 
 {% endblock %}
