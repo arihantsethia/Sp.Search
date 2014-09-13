@@ -43,7 +43,7 @@ names = dict()
 
 def p_statement_expr(t):
 	'statement : expression'
-	t[0] = query.getRanking(t[1])
+	t[0] = query.get_ranking(t[1])
 	
 
 def p_statement_end(t):
@@ -148,13 +148,20 @@ class QueryParser:
 
 	def add_slashes(self, query_string):
 		#add function to insert slashes for OR
+		lex.lex()
+		lex.input(query_string)
+		terms=[]
+		while 1:
+			tok=lex.token()
+			if not tok: break
+
 		return query_string
 
 	def get_rank(self, query_string, mode, include_stop_words, include_stemming):
 		query_string = query_string.lower()
 		list_of_words = self.get_terms(query_string, include_stop_words, include_stemming)
 		self.query_evaluator.load_query_items(list_of_words, include_stop_words, include_stemming)
-		query_string =  self.add_slashes(query_string)
+		#query_string =  self.add_slashes(query_string)
 		yacc.yacc()
 		return yacc.parse(query_string)
 		
