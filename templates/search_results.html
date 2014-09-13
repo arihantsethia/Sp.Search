@@ -1,146 +1,113 @@
 {% extends "header.html" %}
 {% block body %}
 <nav class="navbar navbar-default" role="navigation">
-  <!-- Brand and toggle get grouped for better mobile display -->
-  <div class="navbar-header">
-	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-	  <span class="sr-only">Toggle navigation</span>
-	  <span class="icon-bar"></span>
-	  <span class="icon-bar"></span>
-	  <span class="icon-bar"></span>
-	</button>
-	<a class="navbar-brand" href="/">Sp.Search</a>
-  </div>
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Sp.Search</a>
+    </div>
 
-  <!-- Collect the nav links, forms, and other content for toggling -->
-  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-	<div class="col-sm-8 col-md-8">
-		<form class="navbar-form" role="search">
-			<div class="input-group">
-				<input type="hidden" name="stopWords" id="stopWords" value="N">
-                <input type="hidden" name="stemming" id="stemming" value="Y">
-				<input type="text" class="form-control" placeholder="Search" name="query">
-				<div class="input-group-btn">
-					<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
-				<div id="radioBtn" class="btn-group radioBtn" name="stop">
-					<a class="btn btn-primary btn-sm notActive" data-toggle="stopWords" data-title="Y">YES</a>
-					<a class="btn btn-primary btn-sm active" data-toggle="stopWords" data-title="N">NO</a>
-				</div> 
-			</div>
-			<div class="form-group">
-				<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stem Words:</label>
-				<div id="radioBtn2" class="btn-group radioBtn">
-					<a class="btn btn-primary btn-sm active" data-toggle="stemming" data-title="Y">YES</a>
-					<a class="btn btn-primary btn-sm notActive" data-toggle="stemming" data-title="N">NO</a>
-				</div>
-			</div>
-		</form>
-	</div>
-  </div><!-- /.navbar-collapse -->
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="col-sm-8 col-md-8">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="hidden" name="stopWords" id="stopWords" value="N">
+                    <input type="hidden" name="stemming" id="stemming" value="Y">
+                    <input type="text" class="form-control" placeholder="Search" name="query">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
+                    <div id="radioBtn" class="btn-group radioBtn" name="stop">
+                        <a class="btn btn-primary btn-sm notActive" data-toggle="stopWords" data-title="Y">YES</a>
+                        <a class="btn btn-primary btn-sm active" data-toggle="stopWords" data-title="N">NO</a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="filter-col" style="margin-right:0;" for="pref-orderby">Stem Words:</label>
+                    <div id="radioBtn2" class="btn-group radioBtn">
+                        <a class="btn btn-primary btn-sm active" data-toggle="stemming" data-title="Y">YES</a>
+                        <a class="btn btn-primary btn-sm notActive" data-toggle="stemming" data-title="N">NO</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- /.navbar-collapse -->
 </nav>
 <div class="container-full">
-<div class="row">
-	<div class="col-md-4">
-		<h3><span class="label label-default">TF</span></h3>
-		<div id="resultstf"></div>
-	</div>
-	<div class="col-md-4">
-		<h3><span class="label label-default">TF-IDF</span></h3>
-		<div id="resultstfidf"></div>
-	</div>
-	<div class="col-md-4">
-		<h3><span class="label label-default">BM-25</span></h3>
-		<div id="resultsbm"></div>
-	</div>
-</div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="page-header scoring">
+                <h2>TF</h2>
+            </div>
+            <div id="resultstf"></div>
+        </div>
+        <div class="col-md-4 div-middle ">
+            <div class="page-header  scoring">
+                <h2>TF-IDF</h2>
+            </div>
+            <div id="resultstfidf"></div>
+        </div>
+        <div class="col-md-4">
+            <div class="page-header  scoring">
+                <h2>BM-25</h2>
+            </div>
+            <div id="resultsbm"></div>
+        </div>
+    </div>
 </div>
 
 <script type=text/javascript>
-	$( document ).ready(function() {
-		console.log( "ready!" );
+    $(document).ready(function() {
+        $.getJSON('/search_results', {
+            query: getParameterByName('query'),
+            stemming: getParameterByName('stemming'),
+            stopWords: getParameterByName('stopWords'),
+            scoringMethod: 'tf',
+        }, function(data) {
+            var htmlString = "";
+            for (var prop in data['results']) {
+                htmlString += '<div class="result-div"> <p class="lead">';
+                htmlString += '<a href="' + data['results'][prop]['url'] + '">Label</a>';
+                htmlString += '<span class="badge alert-success pull-right">' + data['results'][prop]['score'] + '</span></p>';
+                htmlString += '<div class="div-link"><small class="link" >' + 'some link' + '</small>';
+                htmlString += '</div><small>' + data['results'][prop]['content'] + '</small></div><hr class="results-bottom">';
+            }
+            $("#resultstf").html(htmlString);
+        });
+    });
 
-		$.getJSON('/search_results', {
-					query: getParameterByName('query'),
-					stemming : getParameterByName('stemming'),
-					stopWords : getParameterByName('stopWords'),
-					scoringMethod: 'tf',
-					}, function(data) {
-						var ni = document.getElementById('resultstf');
-						for (var prop in data['results']) 
-						{
-							console.log(prop);
-							var newdiv = document.createElement('div');
-							var htmlpanel = '<div class="panel panel-default"><div class="panel-heading">';
-							htmlpanel += '<h3 class="panel-title"><a href="'+data['results'][prop]['url']+'">'+data['results'][prop]['rank']+' '+data['results'][prop]['title']+'</a></h3>';
-							htmlpanel += '</div><div class="panel-body">'+data['results'][prop]['content']+'</div></div></div>';
-							newdiv.innerHTML = htmlpanel;
-							ni.appendChild(newdiv);
-						 }
-			});
-		
-		$.getJSON('/search_results', {
-					query: getParameterByName('query'),
-					stemming : getParameterByName('stemming'),
-					stopWords : getParameterByName('stopWords'),
-					scoringMethod: 'tfidf',
-					}, function(data) {
-						var ni = document.getElementById('resultstfidf');
-						for (var prop in data['results']) 
-						{
-							console.log(prop);
-							var newdiv = document.createElement('div');
-							var htmlpanel = '<h3 class="panel-title"><a href="'+data['results'][prop]['url']+'">'+data['results'][prop]['rank']+' '+data['results'][prop]['title']+'</a></h3>';
-							htmlpanel += data['results'][prop]['content'];
-							newdiv.innerHTML = htmlpanel;
-							ni.appendChild(newdiv);
-						 }
-		
-		});$.getJSON('/search_results', {
-					query: getParameterByName('query'),
-					stemming : getParameterByName('stemming'),
-					stopWords : getParameterByName('stopWords'),
-					scoringMethod: 'tf',
-					}, function(data) {
-						var ni = document.getElementById('resultsbm');
-						for (var prop in data['results']) 
-						{
-							console.log(prop);
-							var newdiv = document.createElement('div');
-							var htmlpanel = '<div class="panel panel-default"><div class="panel-heading">';
-							htmlpanel += '<h3 class="panel-title"><a href="'+data['results'][prop]['url']+'">'+data['results'][prop]['rank']+' '+data['results'][prop]['title']+'</a></h3>';
-							htmlpanel += '</div><div class="panel-body">'+data['results'][prop]['content']+'</div></div></div>';
-							newdiv.innerHTML = htmlpanel;
-							ni.appendChild(newdiv);
-						 }
-			});
-		
-		});
-		function getParameterByName(name) {
-				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-					results = regex.exec(location.search);
-				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-		};
-		
-		$('input[name="stop"]').change(function(){
-			console.log('chan');
-  			 $('#stopWords').val($(this).val())
-		});
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
 
-		$('.radioBtn a').on('click', function(){
-          var sel = $(this).data('title');
-          var tog = $(this).data('toggle');
-          $('#'+tog).prop('value', sel);
-          
-          $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
-          $('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
-      });
+    $('input[name="stop"]').change(function() {
+        console.log('chan');
+        $('#stopWords').val($(this).val())
+    });
+
+    $('.radioBtn a').on('click', function() {
+        var sel = $(this).data('title');
+        var tog = $(this).data('toggle');
+        $('#' + tog).prop('value', sel);
+
+        $('a[data-toggle="' + tog + '"]').not('[data-title="' + sel + '"]').removeClass('active').addClass('notActive');
+        $('a[data-toggle="' + tog + '"][data-title="' + sel + '"]').removeClass('notActive').addClass('active');
+    });
 </script>
-
 {% endblock %}
 
 

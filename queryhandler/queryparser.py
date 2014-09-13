@@ -4,8 +4,6 @@ import queryeval
 import re
 from nltk import PorterStemmer
 
-
-
 tokens = (
 	'NAME',
 	'PLUS','MINUS','DIVIDE',
@@ -49,7 +47,6 @@ names = dict()
 def p_statement_expr(t):
 	'statement : expression'
 	t[0] = query_eval.get_ranking(t[1])
-	
 
 def p_statement_end(t):
 	'words : NAME'
@@ -58,7 +55,6 @@ def p_statement_end(t):
 def p_statement_words(t):
 	'words : NAME words'              
 	t[0] = t[1] + " " + t[2]
-
 
 def p_expression_phrase(t):
 	'''expression : QUOTE words QUOTE
@@ -79,7 +75,6 @@ def p_expression_or(t):
 	res1 = t[1]
 	res2 = t[3]    
 	res3 = dict()
-
 	for document in res1:
 		res3[document] = res1[document]
 	for document in res2:
@@ -94,11 +89,9 @@ def p_expression_and(t):
 	res1 = t[1]
 	res2 = t[3]
 	res3 = dict()
-
 	for document in res1:
 		if res2.has_key(document):
 			res3[document] = res1[document] + res2[document]
-
 	t[0] = res3
 
 def p_expression_not(t):
@@ -106,11 +99,9 @@ def p_expression_not(t):
 	res1 = t[1]
 	res2 = t[3]
 	res3 = dict()
-
 	for document in res1:
 		if not(res2.has_key(document)):
 			res3[document] = res1[document]
-
 	t[0] = res3
 
 def p_expression_group(t):
@@ -156,7 +147,6 @@ class QueryParser:
 		new_string=""
 		quote = False
 		last_name = False
-		
 		while 1:
 			tok = lex.token()
 			if not tok: break
@@ -172,7 +162,6 @@ class QueryParser:
 				if (include_stemming):
 					tok.value = self.porter.stem(tok.value)
 				terms.append(tok.value)
-				
 			elif tok.type=="QUOTE":
 				if last_name==True:
 					if (not quote):
@@ -182,27 +171,17 @@ class QueryParser:
 					quote = True
 				else:
 					quote = False
-				
-				
 			elif tok.type=="LPAREN":
 				if last_name==True:
 					if (not quote):
 						new_string+="/"
 				last_name=False
-				
 			elif tok.type=="RPAREN":
 				last_name = True
-				
 			else:
 				last_name = False
-				
-			
 			new_string+=tok.value+" "
-
 		return (new_string, terms)
-
-
-	
 
 	def get_rank(self, query_string, mode, include_stop_words, include_stemming):
 		query_string = query_string.lower()
@@ -217,6 +196,3 @@ class QueryParser:
 		gmode = mode
 		print query_string
 		return yacc.parse(query_string)
-	
-		
-		
