@@ -11,25 +11,14 @@ def index():
 
 @views.route('/search', methods=['GET'])
 def search():
+	query_string = request.args.get('query', '')
+	stemming = True if request.args.get('stemming','Y') == 'Y' else False
+	stopWords = True if request.args.get('stopWords','N') == 'Y' else False
+	
+	#log query,stemming, stopwords
 	return render_template("search_results.html")
 
 @views.route('/about')
 def about():
 	return render_template("about.html")
-
-@views.route('/contact', methods=['GET', 'POST'])
-def contact():
-	if request.method == 'POST':
-		email_to = "contact@bazinga.com"
-		email_from = request.form['email']
-		email_subject = request.form['subject']
-		email_msg = request.form['msg']+'\n'+ request.form['firstname']+' '+request.form['lastname']
-		#Define host to send mail
-		#server = smtplib.SMTP(HOST)
-		#server.sendmail(email_from, [email_to], email_msg)
-		#server.quit()
-		message = "Thank You for Contacting Us. We will soon get in touch with you."
-		return render_template("index.html" , message = message)
-	return render_template("contact.html")
-
 

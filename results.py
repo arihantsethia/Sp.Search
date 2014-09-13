@@ -3,8 +3,7 @@ import os, chardet, urllib, string
 from indexer import indexbuilder, htmlparser, indexmerger
 from queryhandler import queryparser
 
-query_parser = None
-
+query_parser = None 
 def set_query_parser():
 	root_dir = '/home/arihant/Github/Sp.Search/'
 	index_dir = root_dir + 'indices/'
@@ -19,6 +18,3 @@ def set_query_parser():
 	k = .75
 	b = .5
 	query_parser = queryparser.QueryParser(indices,stop_words_file, k, b)
-
-def 	():
-	print query_parser;
