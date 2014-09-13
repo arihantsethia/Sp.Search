@@ -6,41 +6,32 @@ from nltk import PorterStemmer
 porter = PorterStemmer()
 
 class QueryEvaluator:
-	def __init__ (self, stop_words_file, total_number_of_documents, average_length, k, b):
-		self.get_stopwords(stop_words_file)
-		self.total_number_of_documents = total_number_of_documents
-		self.average_length = average_length
+	def __init__ (self, stop_words_file, k, b):
+		self.total_number_of_documents = 1500000
+		self.average_length = 334
 		self.k = k
 		self.b = b
 		self.length_data = None;
 
-	def load_indices(self, indicesFileList):
-		for indexFile in indicesFileList:
+	def load_indices(self, indices_file_list):
+		self.indices = []
+		for indexFile in indices_file_list:
 			self.indices.append(shelve.open(indexFile))
 
-	def get_terms(self, query_terms, include_stop_words, include_stemming):
-		html_string = query_terms.lower()
-		html_string = re.sub(r'[^a-z0-9 ]',' ',html_string)
-		html_string = html_string.split()
-		if(not self.contains_stop_words) :
-			html_string = [x for x in html_string if x not in self.stop_words]
-		html_string = [ self.porter.stem(word) for word in html_string]
-		return html_string
-
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
-		query_terms = [porter.stem(word) for word in terms]
-		full_index = shelve.open("Data/indices/107")
-		for term in terms:
-			if full_index.has_key(term):
-				self.index[term] = full_index[term]
+		pos = 0
+		if include_stemming and (not include_stop_words):
+			pos = 0
+		elif include_stemming and include_stop_words:
+			pos = 1
+		elif (not include_stemming) and (not include_stop_words):
+			pos = 2
+		elif (not include_stemming) and include_stop_words:
+			pos = 3
+		for term in query_terms:
+			if indices[pos].has_key(term):
+				self.index[term] = indices[pos][term]
 		return
-
-	def get_stopwords(self, stop_words_file):
-		'''get stopwords from the stopwords file'''
-		f=open(stop_words_file, 'r')
-		stopWords=[line.rstrip() for line in f]
-		self.stopWords=dict.fromkeys(stopWords)
-		f.close()
 
 	def get_ranking(self, score):
 		rank = sorted(score.items(), key=lambda x:x[1], reverse=True)
@@ -194,8 +185,3 @@ class QueryEvaluator:
 				bm25score=0
 			score[document] = bm25score
 		return score
-
-# query = 'air +line -look +pool +prop -lop cool "ok gu what"'
-if __name__ == "__main__":
-	query = raw_input("enter query ")
-	print get_tfscore_phrase(query)

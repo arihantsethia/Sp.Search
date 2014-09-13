@@ -124,9 +124,30 @@ def p_error(t):
 yacc.yacc()
 
 class QueryParser:
-	def __init__(self, stop_words_file, total_number_of_documents, average_length, k, b):
-		self.query_evaluator = queryeval.QueryEvaluator(stop_words_file, total_number_of_documents, average_length, k, b)
-		self.query_evaluator.load_indices()
+	def __init__(self, indices_list, stop_words_file, k, b):
+		self.query_evaluator = queryeval.QueryEvaluator(stop_words_file, k, b)
+		self.query_evaluator.load_indices(indices_list)
+		self.get_stopwords(stop_words_file)
 
-	def get_rank(self, query_string, mode):
+	def get_stopwords(self, stop_words_file):
+		'''get stopwords from the stopwords file'''
+		f=open(stop_words_file, 'r')
+		stopWords=[line.rstrip() for line in f]
+		self.stopWords=dict.fromkeys(stopWords)
+		f.close()
+
+	def get_terms(self, query_string, include_stop_words, include_stemming):
+		query_string = re.sub(r'[^a-z0-9 ]',' ',query_string)
+		query_string = query_string.split()
+		if(not self.contains_stop_words) :
+			query_string = [x for x in query_string if x not in self.stop_words]
+		query_string = [ self.porter.stem(word) for word in query_string]
+		return query_string
+
+
+	def get_rank(self, query_string, mode, include_stop_words, include_stemming):
+		query_string = query_string.lower()
+		list_of_words = self.get_terms(query_string, include_stop_words, include_stemming)
+		self.query_evaluator.load_query_items(list_of_words, include_stop_words, include_stemming)
+		# Now parse this query and return rank
 		return

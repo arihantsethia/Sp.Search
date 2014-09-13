@@ -54,4 +54,6 @@ docs/_build/
 dataset/*
 indices/*
 errors/*
+*parsetab.py
+parser.out
 
