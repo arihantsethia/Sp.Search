@@ -3,6 +3,10 @@ from __future__ import with_statement
 from flask import Flask, _app_ctx_stack
 from views import views
 from queryhandler import queryparser
+import uuid
+
+
+
 
 # Defining the application by creating an instance of Flask
 app = Flask(__name__)
@@ -15,7 +19,7 @@ app.register_blueprint(views)
 #Initaialzes the database from the database schema give in 'schema.sql'
 def init_query_parser():
 	with app.app_context():
-		root_dir = '/home/arihant/Github/Sp.Search/'
+		root_dir = '/home/rh/git/Sp.Search/'
 		index_dir = root_dir + 'indices/'
 		indices = []
 		indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')

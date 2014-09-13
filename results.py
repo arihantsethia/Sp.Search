@@ -5,7 +5,7 @@ from queryhandler import queryparser
 
 query_parser = None 
 def set_query_parser():
-	root_dir = '/home/arihant/Github/Sp.Search/'
+	root_dir = '/home/rh/git/Sp.Search/'
 	index_dir = root_dir + 'indices/'
 	indices = []
 	indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')

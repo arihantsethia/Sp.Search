@@ -40,9 +40,6 @@ def search_results():
 	data['b']=123
 	return json.dumps(data)
 
-	# #log query,stemming, stopwords
-	# return render_template("search_results.html", result)
-
 @views.route('/about')
 def about():
 	return render_template("about.html")
