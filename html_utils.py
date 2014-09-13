@@ -14,10 +14,29 @@ def highlight_relevant_text(html_string, query_string):
 		
     	s = match.start()
     	e = match.end()
+    	#too sleepy.this is a brute approach but shoudl work.avoiding splitting the whole document as that maybe slow
+    	if (s-100>=0):
+    		if e+100<len(content):
+    			words = content[s-100:e+100].split()
+    		else:
+    			words = content[s-100:len(content)].split()
+    	else:
+    		if e+100<len(content):
+    			words = content[0:e+100].split()
+    		else:
+    			words = content[0:len(content)].split()
 
-    	words = content[s-100:e+100].split()
     	i = words.index(query_string)
-    	context += ' '.join(words[i-5:i+5])+'...'
+    	if i-5>=0:
+    		if i+5<len(words):
+    			context += ' '.join(words[i-5:i+5])+'...'
+    		else:
+    			context += ' '.join(words[i-5:len(words)])+'...'
+    	else:
+    		if i+5<len(words):
+    			context += ' '.join(words[0:i+5])+'...'
+    		else:
+    			context += ' '.join(words[0:len(words)])+'...'
     	
     	count+=1
 		#rval.append(context)
