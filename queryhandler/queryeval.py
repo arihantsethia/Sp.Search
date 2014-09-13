@@ -1,7 +1,8 @@
 import re, shelve, math
 from operator import itemgetter
-from sets import Set
+#from sets import Set
 from nltk import PorterStemmer
+import pickle
 
 porter = PorterStemmer()
 
@@ -33,9 +34,13 @@ class QueryEvaluator:
 				self.index[term] = indices[pos][term]
 		return
 
+	def load_length_data(self):
+		self.length_data=pickle.load(open("dataset/length.p"), "rb")
+		return
+
 	def get_ranking(self, score):
 		rank = sorted(score.items(), key=lambda x:x[1], reverse=True)
-		print rank
+		#print rank
 		return rank
 
 
@@ -64,6 +69,7 @@ class QueryEvaluator:
 
 	def get_bm25_score(self, term):
 		score ={}
+		self.load_length_data()
 		if self.index.has_key(term):
 			postlist=self.index[term]
 			numberOfDocuments = len(postlist)
@@ -147,6 +153,7 @@ class QueryEvaluator:
 	def get_bm25score_phrase(self, phrase):
 		score = {}
 		tf={}
+		self.load_length_data()
 		ph = phrase.split()
 		if self.index.has_key(ph[0]):
 			postlist = self.index[ph[0]]

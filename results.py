@@ -15,6 +15,6 @@ def set_query_parser():
 	error_dir = root_dir + 'errors/'
 	errorLogFile =error_dir + 'error.log'
 	stop_words_file = root_dir+"indexer/stopWords.txt"
-	k = .75
-	b = .5
+	k = 2.00
+	b = 0.75
 	query_parser = queryparser.QueryParser(indices,stop_words_file, k, b)

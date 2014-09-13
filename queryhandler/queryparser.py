@@ -1,6 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import queryeval
+import re
 
 tokens = (
 	'NAME',
@@ -42,8 +43,8 @@ names = dict()
 
 def p_statement_expr(t):
 	'statement : expression'
-	query.getRanking(t[1])
-	t[0] = t[1]
+	t[0] = query.getRanking(t[1])
+	
 
 def p_statement_end(t):
 	'words : NAME'
@@ -139,15 +140,22 @@ class QueryParser:
 	def get_terms(self, query_string, include_stop_words, include_stemming):
 		query_string = re.sub(r'[^a-z0-9 ]',' ',query_string)
 		query_string = query_string.split()
-		if(not self.contains_stop_words) :
+		if(not self.include_stop_words) :
 			query_string = [x for x in query_string if x not in self.stop_words]
-		query_string = [ self.porter.stem(word) for word in query_string]
+		if(self.include_stemming):
+			query_string = [ self.porter.stem(word) for word in query_string]
 		return query_string
 
+	def add_slashes(self, query_string):
+		#add function to insert slashes for OR
+		return query_string
 
 	def get_rank(self, query_string, mode, include_stop_words, include_stemming):
 		query_string = query_string.lower()
 		list_of_words = self.get_terms(query_string, include_stop_words, include_stemming)
 		self.query_evaluator.load_query_items(list_of_words, include_stop_words, include_stemming)
-		# Now parse this query and return rank
-		return
+		query_string =  self.add_slashes(query_string)
+		yacc.yacc()
+		return yacc.parse(query_string)
+		
+		
