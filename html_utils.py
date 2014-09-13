@@ -1,8 +1,30 @@
 import json, os
+import re, nltk
+
 dataset_dir = 'dataset/'
 
 def highlight_relevant_text(html_string, query_string):
-	return ''
+	content = nltk.clean_html(html_string)
+	count = 0
+	context = ''
+	#rval = []
+	for match in re.finditer(query_string, content):
+		if count>2:
+			break;
+		
+    	s = match.start()
+    	e = match.end()
+
+    	words = content[s-100:e+100].split()
+    	i = words.index(query_string)
+    	context += ' '.join(words[i-5:i+5])+'...'
+    	
+    	count+=1
+		#rval.append(context)
+	return context#rval
+
+def get_title(html_string):
+	return re.search("<title>.*</title>",html_string).group(0)[7:-8]
 
 def generate_json_rank_list(rank_list, query_string, start_rank):
 	rank_list = '['
@@ -12,6 +34,7 @@ def generate_json_rank_list(rank_list, query_string, start_rank):
 		with open(dataset_dir+str(folder_numer)+str(doc_id)) as content_file:
 			html_content = content_file.read()
 		data = {}
+		
 		data['title'] = get_title(html_content)
 		data['url'] = ''
 		data['score'] = str(score)
