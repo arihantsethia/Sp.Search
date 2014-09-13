@@ -3,45 +3,84 @@
 <nav class="navbar navbar-default" role="navigation">
   <!-- Brand and toggle get grouped for better mobile display -->
   <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-      <span class="sr-only">Toggle navigation</span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-    <a class="navbar-brand" href="#">Sp.Search</a>
+	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	  <span class="sr-only">Toggle navigation</span>
+	  <span class="icon-bar"></span>
+	  <span class="icon-bar"></span>
+	  <span class="icon-bar"></span>
+	</button>
+	<a class="navbar-brand" href="#">Sp.Search</a>
   </div>
 
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-    <div class="col-sm-8 col-md-8">
-        <form class="navbar-form" role="search">
-	        <div class="input-group">
-	            <input type="text" class="form-control" placeholder="Search" name="q">
-	            <div class="input-group-btn">
-	                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-	            </div>
-	        </div>
-	        <div class="form-group">
-		        <label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
-		        <div id="radioBtn" class="btn-group radioBtn">
-		            <a class="btn btn-primary btn-sm notActive" data-toggle="happy" data-title="Y">YES</a>
-		            <a class="btn btn-primary btn-sm active" data-toggle="happy" data-title="N">NO</a>
-		        </div> 
-	        </div>
-	        <div class="form-group">
-		        <label class="filter-col" style="margin-right:0;" for="pref-orderby">Stem Words:</label>
-		        <div id="radioBtn2" class="btn-group radioBtn">
-		            <a class="btn btn-primary btn-sm active" data-toggle="happy2" data-title="Y">YES</a>
-		            <a class="btn btn-primary btn-sm notActive" data-toggle="happy2" data-title="N">NO</a>
-		        </div>
-	        </div>
-        </form>
-    </div>
+	<div class="col-sm-8 col-md-8">
+		<form class="navbar-form" role="search">
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Search" name="q">
+				<div class="input-group-btn">
+					<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
+				<div id="radioBtn" class="btn-group radioBtn">
+					<a class="btn btn-primary btn-sm notActive" data-toggle="happy" data-title="Y">YES</a>
+					<a class="btn btn-primary btn-sm active" data-toggle="happy" data-title="N">NO</a>
+				</div> 
+			</div>
+			<div class="form-group">
+				<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stem Words:</label>
+				<div id="radioBtn2" class="btn-group radioBtn">
+					<a class="btn btn-primary btn-sm active" data-toggle="happy2" data-title="Y">YES</a>
+					<a class="btn btn-primary btn-sm notActive" data-toggle="happy2" data-title="N">NO</a>
+				</div>
+			</div>
+		</form>
+	</div>
   </div><!-- /.navbar-collapse -->
 </nav>
 <div class="container-full">
-
+<div class="row">
+	<div class="col-md-4">
+		<h2>TF Rankings</h2>
+	</div>
+	<div class="col-md-4">
+		<h2>TF-IDF Rankings</h2>
+	</div>
+	<div class="col-md-4">
+		<h2>BM-25 Rankings</h2>
+	</div>
+</div>
 </div>
 
+<script type=text/javascript>
+	$( document ).ready(function() {
+		console.log( "ready!" );
+		$.getJSON('/search_results', {
+					query: getParameterByName('query'),
+					stemming : getParameterByName('stemming'),
+					stopWords : getParameterByName('stopWords'),
+					scoringMethod: 'tf',
+					}, function(data) {
+						
+						<div class="panel panel-default">
+							<div class="panel-body">
+
+							</div>
+						</div>  
+					});
+		});
+
+		function getParameterByName(name) {
+				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+					results = regex.exec(location.search);
+				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+		};
+		
+</script>
+
 {% endblock %}
+
+

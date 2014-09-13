@@ -5,8 +5,10 @@ from queryhandler import queryparser
 
 query_parser = None 
 def set_query_parser():
+
 	global query_parser
 	root_dir = '/home/simrat/Documents/IRProject/Sp.Search/'
+
 	index_dir = root_dir + 'indices/'
 	indices = []
 	indices.append(index_dir+'finalIndexWithoutStopWordsWithStemming')
@@ -18,7 +20,7 @@ def set_query_parser():
 	stop_words_file = root_dir+"indexer/stopWords.txt"
 	k = 2.00
 	b = 0.75
-	#print indices
+
 	query_parser = queryparser.QueryParser(indices,stop_words_file, k, b)
 	
 def get_query_parser():
