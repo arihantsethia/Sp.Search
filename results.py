@@ -2,6 +2,8 @@
 import os, chardet, urllib, string
 from indexer import indexbuilder, htmlparser, indexmerger
 from queryhandler import queryparser
+import cProfile
+import pstats
 
 query_parser = None 
 def set_query_parser():
@@ -30,8 +32,24 @@ def get_query_parser():
 
 if __name__ == '__main__':
 	set_query_parser()
-	s = raw_input("enter query: ")
-	m = int(raw_input("enter mode: "))
-	rank = query_parser.get_rank(s, m, False, True)
-	for i in xrange(0, min(10, len(rank))):
-		print rank[i]
+	queries = ["woman", "computer science", "boring job", "\"prime minister\"", 
+					"sex", "novel", "final - result", "apple + banana", "man", "error"]
+	#s = raw_input("enter query: ")
+	#m = int(raw_input("enter mode: "))
+	for q in queries:
+		print q
+		cProfile.run('r=query_parser.get_rank(q, 1, False, True)', 'restats')
+		p = pstats.Stats('restats')
+		p.sort_stats('cumulative').print_stats(20)
+		print q
+		cProfile.run('r=query_parser.get_rank(q, 2, False, True)', 'restats')
+		p = pstats.Stats('restats')
+		p.sort_stats('cumulative').print_stats(20)
+		print q
+		cProfile.run('r=query_parser.get_rank(q, 3, False, True)', 'restats')
+		p = pstats.Stats('restats')
+		p.sort_stats('cumulative').print_stats(20)
+
+	
+	#for i in xrange(0, min(10, len(rank))):
+		#print rank[i]

@@ -138,6 +138,7 @@ class QueryParser:
 	def __init__(self, indices_list, stop_words_file, k, b):
 		self.query_evaluator = queryeval.QueryEvaluator(stop_words_file, k, b)
 		self.query_evaluator.load_indices(indices_list)
+		self.query_evaluator.load_length_data()
 		self.get_stopwords(stop_words_file)
 		self.porter = PorterStemmer()
 
@@ -147,15 +148,6 @@ class QueryParser:
 		stopWords=[line.rstrip() for line in f]
 		self.stop_words=dict.fromkeys(stopWords)
 		f.close()
-
-	# def get_terms(self, query_string, include_stop_words, include_stemming):
-	# 	query_string = re.sub(r'[^a-z0-9 ]',' ',query_string)
-	# 	query_string = query_string.split()
-	# 	if(not include_stop_words) :
-	# 		query_string = [x for x in query_string if x not in self.stop_words]
-	# 	if(include_stemming):
-	# 		query_string = [ self.porter.stem(word) for word in query_string]
-	# 	return query_string
 
 	def get_terms(self, query_string, include_stop_words, include_stemming):
 		lex.lex()
@@ -215,12 +207,9 @@ class QueryParser:
 	def get_rank(self, query_string, mode, include_stop_words, include_stemming):
 		query_string = query_string.lower()
 		tup = self.get_terms(query_string, include_stop_words, include_stemming)
-		
-		
 		list_of_words = tup[1]
 		self.query_evaluator.load_query_items(list_of_words, include_stop_words, include_stemming)
 		query_string = tup[0]
-		#query_string =  self.add_slashes(query_string)
 		yacc.yacc()
 		global gmode
 		global query_eval
