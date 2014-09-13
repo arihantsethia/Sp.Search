@@ -36,12 +36,10 @@ class QueryEvaluator:
 			if self.indices[pos].has_key(term):
 				self.index[term] = self.indices[pos][term]
 
-		#print self.index
 		return
 
-	def load_length_data(self):
-		if self.length_data==None:
-			self.length_data=pickle.load(open("indices/length.p", "rb"))
+	def load_length_data(self):	
+		self.length_data=pickle.load(open("indices/length.p", "rb"))
 		return
 
 	def get_ranking(self, score):
@@ -76,8 +74,7 @@ class QueryEvaluator:
 	def get_bm25_score(self, term):
 		score ={}
 		
-		if self.index.has_key(term):
-			self.load_length_data()
+		if self.index.has_key(term):			
 			postlist=self.index[term]
 			numberOfDocuments = len(postlist)
 			if numberOfDocuments==0:
@@ -148,7 +145,7 @@ class QueryEvaluator:
 						if self.index.has_key(ph[x]):
 							if  (last+1) in self.index[ph[x]][document]:
 								last = last + 1
-								#print "sda"
+								
 							else:
 								flag = False
 								break
@@ -168,12 +165,10 @@ class QueryEvaluator:
 		ph = phrase.split()
 		if len(ph)==0:
 			return score
-		if self.index.has_key(ph[0]):
-			self.load_length_data()
+		if self.index.has_key(ph[0]):			
 			postlist = self.index[ph[0]]
 			for document in postlist:
 				count = 0
-				#print type(document)
 				for pos in self.index[ph[0]][document]:
 					flag = True
 					last = pos
