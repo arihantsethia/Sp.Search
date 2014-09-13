@@ -18,8 +18,6 @@ def search():
 	query_string = request.args.get('query', '')
 	stemming = True if request.args.get('stemming','Y') == 'Y' else False
 	stopWords = True if request.args.get('stopWords','N') == 'Y' else False
-	
-	#log query,stemming, stopwords
 	return render_template("search_results.html")
 
 @views.route('/search_results',)

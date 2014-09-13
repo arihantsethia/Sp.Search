@@ -20,9 +20,9 @@ def init_query_parser():
 		index_dir = root_dir + 'indices/'
 		indices = []
 		indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')
-		#indices.append(index_dir+'indexWithStopWordsAndWithStemming')
-		#indices.append(index_dir+'indexWithoutStopWordsAndWithoutStemming')
-		#indices.append(index_dir+'indexWithStopWordsAndWithoutStemming')
+		indices.append(index_dir+'indexWithStopWordsAndWithStemming')
+		indices.append(index_dir+'indexWithoutStopWordsAndWithoutStemming')
+		indices.append(index_dir+'indexWithStopWordsAndWithoutStemming')
 		error_dir = root_dir + 'errors/'
 		errorLogFile =error_dir + 'error.log'
 		stop_words_file = root_dir+"indexer/stopWords.txt"
