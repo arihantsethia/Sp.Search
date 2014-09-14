@@ -21,7 +21,6 @@ class QueryEvaluator:
 
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
 		self.index = dict()
-		#print self.indices[0]['sim']
 		print query_terms
 		pos = 0
 		if include_stemming and (not include_stop_words):
@@ -49,7 +48,6 @@ class QueryEvaluator:
 
 	def get_tfidf_score(self, term):
 		score={}
-		
 		if self.index.has_key(term):
 			postlist = self.index[term]
 			numberOfDocuments = len(postlist)
@@ -65,8 +63,6 @@ class QueryEvaluator:
 
 	def get_tf_score(self, term):
 		score={}
-		#print self.indices[0]['sim']
-		
 		if self.index.has_key(term):
 			postlist = self.index[term]
 			for document in postlist:

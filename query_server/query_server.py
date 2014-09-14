@@ -5,7 +5,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 import smtplib, uuid, json
 from queryhandler import queryparser
 import cache, json_utils
-import logging
+import logging, time
 
 # Defining the application by creating an instance of Flask
 app = Flask(__name__)
@@ -16,7 +16,7 @@ query_parser = None
 
 def init_query_parser():
 	global query_parser
-	root_dir = '/home/simrat/Documents/IRProject/Sp.Search/'
+	root_dir = '/home/arihant/Github/Sp.Search/'
 	index_dir = root_dir + 'indices/'
 	indices = []
 	indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')
@@ -43,10 +43,12 @@ def search():
 	query_id = request.args.get('query_id',None)
 	if (query_id is None) or (not cache.is_cached(query_id)):
 		query_id = str(uuid.uuid4())
+		st = time.time()
 		rank_list = query_parser.get_rank(query_string, scoring_method, stop_words, stemming)
+		en = time.time()
 		results_length = len(rank_list)
 		cache.cache_result(query_id, rank_list)
-		processing_time = 0.06
+		processing_time = en-st
 		cache.cache_result_stats(query_id, results_length, processing_time)
 		rank_list = rank_list[start_rank: start_rank+num_results]
 	else :

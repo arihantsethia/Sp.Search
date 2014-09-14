@@ -3,6 +3,11 @@ import re, nltk
 
 dataset_dir = '/home/arihant/Github/Sp.Search/dataset/'
 
+def clean_string(query_string):
+	query_string = query_string.lower()
+	query_string = re.sub(r'[^a-z0-9 ]',' ',query_string)
+	return query_string
+
 def highlight_relevant_text(html_string, query_string):
 	content = nltk.clean_html(html_string)
 	count = 0
@@ -46,13 +51,13 @@ def generate_json_rank_list(rank_list, query_string, start_rank):
 	for (doc_id, score) in rank_list:
 		folder_numer = int(doc_id)/10000
 		with open(dataset_dir+str(folder_numer)+str(doc_id)) as content_file:
-			html_content = content_file.read()
+			html_content = content_file.read().lower()
 		data = {}
 		data['title'] = get_title(html_content)
 		data['url'] = 'file://'+ data['results'][prop]['score'] + str(doc_id/10000)+'/'+str(doc_id)
 		data['score'] = str(score)
 		data['rank'] = str(rank)
-		data['snippet'] = highlight_relevant_text(html_string)
+		data['snippet'] = highlight_relevant_text(html_string, clean_string(query_string))
 		rank += 1
 		rank_list_json += json.dumps(data) + ','
 	rank_list_json += ']'

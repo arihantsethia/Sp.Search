@@ -2,7 +2,7 @@
 import os, chardet, urllib, string
 from indexer import indexbuilder, htmlparser, indexmerger
 
-root_dir = '/home/simrat/Documents/IRProject/Sp.Search/'
+root_dir = '/home/arihant/Github/Sp.Search/'
 datset_dir = root_dir+ 'dataset/'
 index_dir = root_dir + 'indices/'
 error_dir = root_dir + 'errors/'
