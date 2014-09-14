@@ -1,40 +1,40 @@
 {% extends "header.html" %}
 {% block body %}
 <div class="container ">
-    <div class="search-container">
-        <div class="row">
-          <img class="img" src="static/images/3.png">
-        </div>
-        <div id="filter-panel" class="row collapse">
-            <label class="filter-col" style="margin-right:0;" for="stop_words">Stop Words:</label>
-            <div id="radioBtn" class="btn-group radioBtn">
-                <a class="btn btn-primary btn-sm notActive" data-toggle="stop_words" data-title="Y">YES</a>
-                <a class="btn btn-primary btn-sm active" data-toggle="stop_words" data-title="N">NO</a>
-            </div> 
-            <label class="filter-col" style="margin-right:0;" for="stemming">Stem Words:</label>
-            <div id="radioBtn2" class="btn-group radioBtn">
-                <a class="btn btn-primary btn-sm active" data-toggle="stemming" data-title="Y">YES</a>
-                <a class="btn btn-primary btn-sm notActive" data-toggle="stemming" data-title="N">NO</a>
-            </div>
-        </div>
-        <div class="row">
-          <a class="pull-right" data-toggle="collapse" data-target="#filter-panel">
-              <span class="glyphicon glyphicon-cog"></span>
-          </a>
-        </div>
-        <div class="row form-box" role="form">
-            <form class="form" action="/search" role="search">                
-                <div class="input-group">
-                    <input type="hidden" name="stop_words" id="stop_words" value="N">
-                    <input type="hidden" name="stemming" id="stemming" value="Y">
-                    <input type="text" class="form-control"  name="query">
-                    <div class="input-group-btn">
-                        <button class="search-button btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+	<div class="search-container">
+		<div class="row">
+			<img class="img" src="static/images/3.png">
+		</div>
+		<div id="filter-panel" class="row collapse">
+			<label class="filter-col" style="margin-right:0;" for="stop_words">Stop Words:</label>
+			<div id="radioBtn" class="btn-group radioBtn">
+				<a class="btn btn-primary btn-sm notActive" data-toggle="stop_words" data-title="Y">YES</a>
+				<a class="btn btn-primary btn-sm active" data-toggle="stop_words" data-title="N">NO</a>
+			</div> 
+			<label class="filter-col" style="margin-right:0;" for="stemming">Stem Words:</label>
+			<div id="radioBtn2" class="btn-group radioBtn">
+				<a class="btn btn-primary btn-sm active" data-toggle="stemming" data-title="Y">YES</a>
+				<a class="btn btn-primary btn-sm notActive" data-toggle="stemming" data-title="N">NO</a>
+			</div>
+		</div>
+		<div class="row">
+			<a class="pull-right" data-toggle="collapse" data-target="#filter-panel">
+				<span class="glyphicon glyphicon-cog"></span>
+			</a>
+		</div>
+		<div class="row form-box" role="form">
+			<form class="form" action="/search" role="search">                
+				<div class="input-group">
+					<input type="hidden" name="stop_words" id="stop_words" value="N">
+					<input type="hidden" name="stemming" id="stemming" value="Y">
+					<input type="text" class="form-control"  name="query">
+					<div class="input-group-btn">
+						<button class="search-button btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i>
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
 {% endblock %}
