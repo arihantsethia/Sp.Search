@@ -2,7 +2,7 @@ import re, shelve, math
 from operator import itemgetter
 #from sets import Set
 from nltk import PorterStemmer
-import pickle
+import cPickle as pickle
 
 porter = PorterStemmer()
 
@@ -15,11 +15,14 @@ class QueryEvaluator:
 		self.length_data = None;
 
 	def load_indices(self, indices_file_list):
+		print "start"
 		self.indices = []
 		for indexFile in indices_file_list:
 			self.indices.append(shelve.open(indexFile))
+			print "one"
 
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
+		self.index = dict()
 		pos = 0
 		if include_stemming and (not include_stop_words):
 			pos = 0
@@ -30,12 +33,13 @@ class QueryEvaluator:
 		elif (not include_stemming) and include_stop_words:
 			pos = 3
 		for term in query_terms:
-			if indices[pos].has_key(term):
-				self.index[term] = indices[pos][term]
+			if self.indices[pos].has_key(term):
+				self.index[term] = self.indices[pos][term]
+
 		return
 
-	def load_length_data(self):
-		self.length_data=pickle.load(open("dataset/length.p"), "rb")
+	def load_length_data(self):	
+		self.length_data=pickle.load(open("indices/length.p", "rb"))
 		return
 
 	def get_ranking(self, score):
@@ -69,8 +73,8 @@ class QueryEvaluator:
 
 	def get_bm25_score(self, term):
 		score ={}
-		self.load_length_data()
-		if self.index.has_key(term):
+		
+		if self.index.has_key(term):			
 			postlist=self.index[term]
 			numberOfDocuments = len(postlist)
 			if numberOfDocuments==0:
@@ -89,10 +93,12 @@ class QueryEvaluator:
 				score[document] = bm25score
 		return score
 
-	def get_tfidfscore_phrase(self, phrase):
+	def get_tfidf_score_phrase(self, phrase):
 		tf={}
 		score = {}
 		ph = phrase.split()
+		if len(ph)==0:
+			return score
 		if self.index.has_key(ph[0]):
 			postlist = self.index[ph[0]]
 			for document in postlist:
@@ -123,9 +129,11 @@ class QueryEvaluator:
 			score[document] = tf[document]*idf
 		return score
 
-	def get_tfscore_phrase(self, phrase):
+	def get_tf_score_phrase(self, phrase):
 		score = {}
 		ph = phrase.split()
+		if len(ph)==0:
+			return score
 		if self.index.has_key(ph[0]):
 			postlist = self.index[ph[0]]
 			for document in postlist:
@@ -137,7 +145,7 @@ class QueryEvaluator:
 						if self.index.has_key(ph[x]):
 							if  (last+1) in self.index[ph[x]][document]:
 								last = last + 1
-								#print "sda"
+								
 							else:
 								flag = False
 								break
@@ -150,16 +158,17 @@ class QueryEvaluator:
 					score[document] = count
 		return score
 
-	def get_bm25score_phrase(self, phrase):
+	def get_bm25_score_phrase(self, phrase):
 		score = {}
 		tf={}
-		self.load_length_data()
+		
 		ph = phrase.split()
-		if self.index.has_key(ph[0]):
+		if len(ph)==0:
+			return score
+		if self.index.has_key(ph[0]):			
 			postlist = self.index[ph[0]]
 			for document in postlist:
 				count = 0
-				#print type(document)
 				for pos in self.index[ph[0]][document]:
 					flag = True
 					last = pos

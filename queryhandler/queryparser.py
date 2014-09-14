@@ -2,6 +2,9 @@ import ply.lex as lex
 import ply.yacc as yacc
 import queryeval
 import re
+from nltk import PorterStemmer
+
+
 
 tokens = (
 	'NAME',
@@ -20,6 +23,8 @@ t_NAME    = r'[a-zA-Z0-9_][a-zA-Z0-9_]*'
 
 # Ignored characters
 t_ignore = " \t"
+gmode = 0
+query_eval = None
 
 def t_newline(t):
 	r'\n+'
@@ -43,7 +48,7 @@ names = dict()
 
 def p_statement_expr(t):
 	'statement : expression'
-	t[0] = query.get_ranking(t[1])
+	t[0] = query_eval.get_ranking(t[1])
 	
 
 def p_statement_end(t):
@@ -54,19 +59,23 @@ def p_statement_words(t):
 	'words : NAME words'              
 	t[0] = t[1] + " " + t[2]
 
+
 def p_expression_phrase(t):
-	'expression : QUOTE words QUOTE'
-	if mode==1:
-		res1 = query.get_tfscore_phrase(t[2])
-	elif mode==2:
-		res1 = query.get_tfidfscore_phrase(t[2])
-	elif mode==3:
-		res1 = query.get_bm25score_phrase(t[2])
-	t[0] = res1
+	'''expression : QUOTE words QUOTE
+					| QUOTE QUOTE'''
+	if t[2]=="\"":
+		t[0]=dict()
+	else:
+		if gmode==1:
+			res1 = query_eval.get_tf_score_phrase(t[2])
+		elif gmode==2:
+			res1 = query_eval.get_tfidf_score_phrase(t[2])
+		elif gmode==3:
+			res1 = query_eval.get_bm25_score_phrase(t[2])
+		t[0] = res1
 
 def p_expression_or(t):
 	'expression : expression DIVIDE expression'
-	print "Evaluation OR " 
 	res1 = t[1]
 	res2 = t[3]    
 	res3 = dict()
@@ -82,7 +91,6 @@ def p_expression_or(t):
 
 def p_expression_and(t):
 	'expression : expression PLUS expression'
-	print "Evaluation AND  " 
 	res1 = t[1]
 	res2 = t[3]
 	res3 = dict()
@@ -95,7 +103,6 @@ def p_expression_and(t):
 
 def p_expression_not(t):
 	'expression : expression MINUS expression'
-	print "Evaluation NOT  " 
 	res1 = t[1]
 	res2 = t[3]
 	res3 = dict()
@@ -109,15 +116,18 @@ def p_expression_not(t):
 def p_expression_group(t):
 	'expression : LPAREN expression RPAREN'
 	t[0] = t[2]
+def p_expression_empty(t):
+	'expression : '
+	t[0]=dict()
 
 def p_expression_name(t):
 	'expression : NAME'
-	if mode==1:
-		t[0] =query.get_tfscore(t[1])
-	elif mode==2:
-		t[0] =query.get_tfidfscore(t[1])
-	elif mode==3:
-		t[0] =query.get_bm25score(t[1])
+	if gmode==1:
+		t[0] =query_eval.get_tf_score(t[1])
+	elif gmode==2:
+		t[0] =query_eval.get_tfidf_score(t[1])
+	elif gmode==3:
+		t[0] =query_eval.get_bm25_score(t[1])
 
 def p_error(t):
 	print("Syntax error at '%s'" % t.value)
@@ -128,41 +138,85 @@ class QueryParser:
 	def __init__(self, indices_list, stop_words_file, k, b):
 		self.query_evaluator = queryeval.QueryEvaluator(stop_words_file, k, b)
 		self.query_evaluator.load_indices(indices_list)
+		self.query_evaluator.load_length_data()
 		self.get_stopwords(stop_words_file)
+		self.porter = PorterStemmer()
 
 	def get_stopwords(self, stop_words_file):
 		'''get stopwords from the stopwords file'''
 		f=open(stop_words_file, 'r')
 		stopWords=[line.rstrip() for line in f]
-		self.stopWords=dict.fromkeys(stopWords)
+		self.stop_words=dict.fromkeys(stopWords)
 		f.close()
 
 	def get_terms(self, query_string, include_stop_words, include_stemming):
-		query_string = re.sub(r'[^a-z0-9 ]',' ',query_string)
-		query_string = query_string.split()
-		if(not self.include_stop_words) :
-			query_string = [x for x in query_string if x not in self.stop_words]
-		if(self.include_stemming):
-			query_string = [ self.porter.stem(word) for word in query_string]
-		return query_string
-
-	def add_slashes(self, query_string):
-		#add function to insert slashes for OR
 		lex.lex()
 		lex.input(query_string)
 		terms=[]
+		new_string=""
+		quote = False
+		last_name = False
+		
 		while 1:
-			tok=lex.token()
+			tok = lex.token()
 			if not tok: break
+			if tok.type=="NAME":
+				if last_name==True:
+					if (not quote):
+						new_string+="/"
+				last_name=True
+				word=tok.value
+				if (not include_stop_words):
+					if tok.value in  self.stop_words:
+						continue
+				if (include_stemming):
+					tok.value = self.porter.stem(tok.value)
+				terms.append(tok.value)
+				
+			elif tok.type=="QUOTE":
+				if last_name==True:
+					if (not quote):
+						new_string+="/"
+				if (not quote):
+					last_name=False
+					quote = True
+				else:
+					quote = False
+				
+				
+			elif tok.type=="LPAREN":
+				if last_name==True:
+					if (not quote):
+						new_string+="/"
+				last_name=False
+				
+			elif tok.type=="RPAREN":
+				last_name = True
+				
+			else:
+				last_name = False
+				
+			
+			new_string+=tok.value+" "
 
-		return query_string
+		return (new_string, terms)
+
+
+	
 
 	def get_rank(self, query_string, mode, include_stop_words, include_stemming):
 		query_string = query_string.lower()
-		list_of_words = self.get_terms(query_string, include_stop_words, include_stemming)
+		tup = self.get_terms(query_string, include_stop_words, include_stemming)
+		list_of_words = tup[1]
 		self.query_evaluator.load_query_items(list_of_words, include_stop_words, include_stemming)
-		#query_string =  self.add_slashes(query_string)
+		query_string = tup[0]
 		yacc.yacc()
+		global gmode
+		global query_eval
+		query_eval = self.query_evaluator
+		gmode = mode
+		print query_string
 		return yacc.parse(query_string)
+	
 		
 		

@@ -15,7 +15,7 @@ app.register_blueprint(views)
 #Initaialzes the database from the database schema give in 'schema.sql'
 def init_query_parser():
 	with app.app_context():
-		root_dir = '/home/arihant/Github/Sp.Search/'
+		root_dir = '/home/simrat/Documents/IRProject/Sp.Search/'
 		index_dir = root_dir + 'indices/'
 		indices = []
 		indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')
