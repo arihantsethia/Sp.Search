@@ -15,14 +15,18 @@ class QueryEvaluator:
 		self.length_data = None;
 
 	def load_indices(self, indices_file_list):
-		print "start"
 		self.indices = []
+		
 		for indexFile in indices_file_list:
 			self.indices.append(shelve.open(indexFile))
-			print "one"
+			
+		
+			
 
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
 		self.index = dict()
+		#print self.indices[0]['sim']
+		print query_terms
 		pos = 0
 		if include_stemming and (not include_stop_words):
 			pos = 0
@@ -33,8 +37,10 @@ class QueryEvaluator:
 		elif (not include_stemming) and include_stop_words:
 			pos = 3
 		for term in query_terms:
+			print pos
 			if self.indices[pos].has_key(term):
 				self.index[term] = self.indices[pos][term]
+		
 		return
 
 	def load_length_data(self):	
@@ -47,6 +53,7 @@ class QueryEvaluator:
 
 	def get_tfidf_score(self, term):
 		score={}
+		
 		if self.index.has_key(term):
 			postlist = self.index[term]
 			numberOfDocuments = len(postlist)
@@ -62,10 +69,13 @@ class QueryEvaluator:
 
 	def get_tf_score(self, term):
 		score={}
+		#print self.indices[0]['sim']
+		
 		if self.index.has_key(term):
 			postlist = self.index[term]
 			for document in postlist:
 				score[document] = len(postlist[document])
+		
 		return score
 
 	def get_bm25_score(self, term):
@@ -161,7 +171,7 @@ class QueryEvaluator:
 		if len(ph)==0:
 			return score
 		if self.index.has_key(ph[0]):
-0			postlist = self.index[ph[0]]
+			postlist = self.index[ph[0]]
 			for document in postlist:
 				count = 0
 				for pos in self.index[ph[0]][document]:

@@ -15,8 +15,7 @@ query_parser = None
 
 def init_query_parser():
 	global query_parser
-	print "i am shot"
-	root_dir = '/home/arihant/Github/Sp.Search/'
+	root_dir = '/home/simrat/Documents/IRProject/Sp.Search/'
 	index_dir = root_dir + 'indices/'
 	indices = []
 	indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')
@@ -29,6 +28,7 @@ def init_query_parser():
 	k = 2.00
 	b = 0.75
 	query_parser = queryparser.QueryParser(indices,stop_words_file, k, b)
+	print "Loaded"
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -37,12 +37,12 @@ def search():
 	stemming = True if request.args.get('stemming','Y') == 'Y' else False
 	stop_words = True if request.args.get('stop_words','N') == 'Y' else False
 	scoring_method = request.args.get('scoring_method','tf')
-	start_rank = request.args.get('start_rank',0)
-	num_results = request.args.get('num_results',10)
+	start_rank = int(request.args.get('start_rank',0))
+	num_results = int(request.args.get('num_results',10))
 	query_id = request.args.get('query_id',None)
 	if (query_id is None) or (not cache.is_cached(query_id)):
 		query_id = str(uuid.uuid4())
-		rank_list = query_parser.get_rank(query_string, scoring_method, stemming, stop_words)
+		rank_list = query_parser.get_rank(query_string, scoring_method, stop_words, stemming)
 		results_length = len(rank_list)
 		cache.cache_result(query_id, rank_list)
 		processing_time = 0.06
@@ -53,7 +53,7 @@ def search():
 		stats = cached.get_cached_stats(query_id)
 		results_length = stats['results_length']
 		processing_time = stats['processing_time']
-	print query_id, num_results, scoring_method, stemming, stop_words, query_string
+	print query_id, num_results, scoring_method, stop_words, stemming, query_string
 	results = html_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
 	if(callback ==  ''):
 		return results

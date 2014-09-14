@@ -47,7 +47,7 @@ names = dict()
 def p_statement_expr(t):
 	'statement : expression'
 	t[0] = query_eval.get_ranking(t[1])
-
+	
 def p_statement_end(t):
 	'words : NAME'
 	t[0] = t[1]
@@ -120,6 +120,7 @@ def p_expression_name(t):
 		t[0] =query_eval.get_tfidf_score(t[1])
 	elif gmode=="bm-25":
 		t[0] =query_eval.get_bm25_score(t[1])
+	
 
 def p_error(t):
 	print("Syntax error at '%s'" % t.value)
@@ -196,5 +197,6 @@ class QueryParser:
 		query_eval = self.query_evaluator
 		gmode = mode
 		print query_string
+		
 		return yacc.parse(query_string)
 
