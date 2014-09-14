@@ -17,7 +17,7 @@
         <div class="col-sm-8 col-md-8">
             <form class="navbar-form" role="search">
                 <div class="input-group">
-                    <input type="hidden" name="stopWords" id="stopWords" value="N">
+                    <input type="hidden" name="stop_words" id="stop_words" value="N">
                     <input type="hidden" name="stemming" id="stemming" value="Y">
                     <input type="text" class="form-control" placeholder="Search" name="query">
                     <div class="input-group-btn">
@@ -28,8 +28,8 @@
                 <div class="form-group">
                     <label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
                     <div id="radioBtn" class="btn-group radioBtn" name="stop">
-                        <a class="btn btn-primary btn-sm notActive" data-toggle="stopWords" data-title="Y">YES</a>
-                        <a class="btn btn-primary btn-sm active" data-toggle="stopWords" data-title="N">NO</a>
+                        <a class="btn btn-primary btn-sm notActive" data-toggle="stop_words" data-title="Y">YES</a>
+                        <a class="btn btn-primary btn-sm active" data-toggle="stop_words" data-title="N">NO</a>
                     </div>
                 </div>
                 <div class="form-group">
@@ -44,48 +44,84 @@
     </div>
     <!-- /.navbar-collapse -->
 </nav>
-<div class="container-full">
-    <div class="row">
-        <div class="col-md-4">
+<div class="container-full container-xs-height">
+    <div class="row row-xs-height">
+        <div class="col-md-4 col-xs-height fill">
             <div class="page-header scoring">
                 <h2>TF</h2>
+                <small>Records : <small id="tf-records"></small> | Time : <small id="tf-time"></small> sec</small>
             </div>
-            <div id="resultstf"></div>
+            <div class="col-md-3 col-md-offset-3"><img src="static/images/wait.gif" id="tf-wait" style="display:none"/></div>
+            <div id="tf-results"></div>
+            <div id="tf-nav" class="pagination" data-method="tf"></div>
         </div>
-        <div class="col-md-4 div-middle ">
-            <div class="page-header  scoring">
+        <div class="col-md-4 div-middle col-xs-height fill">
+            <div class="page-header scoring">
                 <h2>TF-IDF</h2>
+                <small>Records : <small id="tfidf-records"></small> | Time : <small id="tfidf-time"></small> sec</small>
             </div>
-            <div id="resultstfidf"></div>
+            <div class="col-md-3 col-md-offset-3"><img src="static/images/wait.gif" id="tfidf-wait" style="display:none"/></div>
+            <div id="tfidf-results"></div>
+            <div id="tfidf-nav" class="pagination" data-method="tfidf"></div>
         </div>
-        <div class="col-md-4">
-            <div class="page-header  scoring">
+        <div class="col-md-4 col-xs-height fill">
+            <div class="page-header scoring">
                 <h2>BM-25</h2>
+                <small>Records : <small id="bm-25-records"></small> | Time : <small id="bm-25-time"></small> sec</small>
             </div>
-            <div id="resultsbm"></div>
+            <div class="col-md-3 col-md-offset-3"><img src="static/images/wait.gif" id="bm-25-wait" style="display:none"/></div>
+            <div id="bm-25-results"></div>
+            <div id="bm-25-nav" class="pagination" data-method="bm-25"></div>
         </div>
     </div>
 </div>
 
 <script type=text/javascript>
     $(document).ready(function() {
+        get_results('tf');
+        get_results('tfidf');
+        get_results('bm-25');
+        $('.pagination').on('page', function(event, num){
+            get_results($(this).data()['method'], num*10, 10);
+        });
+    });
+
+    function get_results(method, rank, num_results){
+        $('#'+method+'-wait').show();
+        $('#'+method+'-results').html("");
+        $('#'+method+'-nav').data('queryid', "");
+        $('#'+method+'-records').html('-');
+        $('#'+method+'-time').html('-');
         $.getJSON('/search_results', {
             query: getParameterByName('query'),
             stemming: getParameterByName('stemming'),
-            stopWords: getParameterByName('stopWords'),
-            scoringMethod: 'tf',
+            stopWords: getParameterByName('stop_words'),
+            scoringMethod: method,
+            start_rank: rank
         }, function(data) {
             var htmlString = "";
             for (var prop in data['results']) {
                 htmlString += '<div class="result-div"> <p class="lead">';
-                htmlString += '<a href="' + data['results'][prop]['url'] + '">Label</a>';
+                htmlString += '<a target="_blank" data-rank="'+data['results'][prop]['rank']+'" data-href="'+data['results'][prop]['url']+'" href="' + data['results'][prop]['log_url'] + '">'+data['results'][prop]['title']+'</a>';
                 htmlString += '<span class="badge alert-success pull-right">' + data['results'][prop]['score'] + '</span></p>';
                 htmlString += '<div class="div-link"><small class="link" >' + 'some link' + '</small>';
-                htmlString += '</div><small>' + data['results'][prop]['content'] + '</small></div><hr class="results-bottom">';
+                htmlString += '</div><small>' + data['results'][prop]['snippet'] + '</small></div><hr class="results-bottom">';
             }
-            $("#resultstf").html(htmlString);
+            $('#'+method+'-results').html(htmlString);
+            $('#'+method+'-nav').data('queryid', data['query_id']);
+            $('#'+method+'-records').html(data['total_results']);
+            $('#'+method+'-time').html(data['time']);
+            numberOfPages = data['total_results']/10;
+            activePage = Math.max(data['start_rank']/10,1);
+            $('#'+method+'-nav').bootpag({
+               total: numberOfPages,
+               page: activePage,
+               maxVisible: 5
+            });
+            $('#'+method+'-wait').hide();
         });
-    });
+    }
+
 
     function getParameterByName(name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");

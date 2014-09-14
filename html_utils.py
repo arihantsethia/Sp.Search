@@ -68,7 +68,8 @@ def generate_json(query_id, rank_list, query_string, scoring_method, processing_
 	result = dict()
 	result['query_id'] = str(query_id)
 	result['scoring_method'] = str(scoring_method)
+	result['start_rank'] = start_rank
 	result['time'] = str(processing_time)
-	result['number_of_result'] = str(results_length)
+	result['total_result'] = str(results_length)
 	result['rank_list'] = generate_json_rank_list(rank_list, query_string, start_rank)
 

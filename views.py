@@ -9,6 +9,23 @@ import cache
 #Defining the Blueprint for views.py
 views = Blueprint('views',__name__)
 
+def get_query_parser():
+	root_dir = '/home/arihant/Github/Sp.Search/'
+	index_dir = root_dir + 'indices/'
+	indices = []
+	indices.append(index_dir+'indexWithoutStopWordsAndWithStemming')
+	indices.append(index_dir+'indexWithStopWordsAndWithStemming')
+	indices.append(index_dir+'indexWithoutStopWordsAndWithoutStemming')
+	indices.append(index_dir+'indexWithStopWordsAndWithoutStemming')
+	error_dir = root_dir + 'errors/'
+	errorLogFile =error_dir + 'error.log'
+	stop_words_file = root_dir+"indexer/stopWords.txt"
+	k = 2.00
+	b = 0.75
+	query_parser = queryparser.QueryParser(indices,stop_words_file, k, b)
+	g._query_parser = query_parser
+	return query_parser
+
 @views.route('/')
 def index():
 	return render_template("index.html")
@@ -22,10 +39,11 @@ def search():
 
 @views.route('/search_results',)
 def search_results():
+	#query_parser = flask.g.get('user', get_query_parser())
 	query_string = request.args.get('query', '')
 	stemming = True if request.args.get('stemming','Y') == 'Y' else False
-	stopWords = True if request.args.get('stopWords','N') == 'Y' else False
-	scoring_method = request.args.get('scoringMethod','tf')
+	stopWords = True if request.args.get('stop_words','N') == 'Y' else False
+	scoring_method = request.args.get('scoring_method','tf')
 	start_rank = request.args.get('start_rank',0)
 	num_results = request.args.get('num_results',10)
 	query_id = request.args.get('query_id',None)
@@ -42,21 +60,25 @@ def search_results():
 		stats = cached.get_cached_stats(query_id)
 		results_length = stats['results_length']
 		processing_time = stats['processing_time']
-	results = generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)	'''
+	results = generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)'''
 	data = {}
 	data['scoringMethod']=scoring_method
+	data['time'] = 0.5
+	data['total_results']=5000
+	data['start_rank']= start_rank
 	data['results']=[{},{}]
-	
+	data['results'][0]['log_url']='sadsad'
 	data['results'][0]['url']='sadsad'
 	data['results'][0]['title']=123
 	data['results'][0]['rank']=1
-	data['results'][0]['content']="sadsda"
+	data['results'][0]['snippet']="sadsda"
 	# data['results'][1]={}
+	data['results'][0]['log_url']='sadsad'
 	data['results'][1]['url']='sadad'
 	data['results'][1]['title']=2313
 	data['results'][1]['rank']=2
-	data['results'][1]['content']="eqwe"
-	data['query_id']=str(query_id)
+	data['results'][1]['snippet']="eqwe"
+	data['query_id']="str(query_id)"
 	return json.dumps(data)
 
 @views.route('/about')
