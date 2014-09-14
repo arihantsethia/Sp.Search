@@ -4,7 +4,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, _app_ctx_stack,Blueprint, current_app
 import smtplib, uuid, json
 from queryhandler import queryparser
-import cache, html_utils
+import cache, json_utils
+import logging
 
 # Defining the application by creating an instance of Flask
 app = Flask(__name__)
@@ -53,13 +54,24 @@ def search():
 		stats = cached.get_cached_stats(query_id)
 		results_length = stats['results_length']
 		processing_time = stats['processing_time']
-	print query_id, num_results, scoring_method, stemming, stop_words, query_string
-	results = html_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
+	results = json_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
+	print results
 	if(callback ==  ''):
 		return results
 	else:
 		return callback+'(' + results +')'
 
+@app.route('/log', methods=['GET'])
+def log():
+	query_id = request.args.get('query_id', '')
+	redirect_url = request.args.get('redirect_url', '')
+	rank = request.args.get('rank', '')
+	return redirect(redirect_url);
+
 if __name__ == '__main__':
 	init_query_parser()
+	handler = logging.FileHandler('query_results.log')
+	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	handler.setFormatter(formatter)
+	app.logger.addHandler(handler)
 	app.run(host='0.0.0.0', port=1234, debug=True)

@@ -92,20 +92,27 @@
 		$('#'+method+'-nav').data('queryid', "");
 		$('#'+method+'-records').html('-');
 		$('#'+method+'-time').html('-');
-		$.getJSON('http://127.0.0.1:1234/search?callback=?', {
+		host = window.location.host
+		hostname = window.location.hostname;
+		port = 1234;
+		$.getJSON('http://'+hostname+':'+port+'/search?callback=?', {
 			query: getParameterByName('query'),
 			stemming: getParameterByName('stemming'),
-			stopWords: getParameterByName('stop_words'),
-			scoringMethod: method,
+			stop_wsords: getParameterByName('stop_words'),
+			scoring_method: method,
 			start_rank: rank
 		}, function(data) {
+			console.log(data);
 			var htmlString = "";
-			for (var prop in data['results']) {
+			results = JSON.parse(data['results']);
+			console.log(results)
+			for (var prop in results) {
+				console.log(prop)
 				htmlString += '<div class="result-div"> <p class="lead">';
-				htmlString += '<a target="_blank" data-rank="'+data['results'][prop]['rank']+'" data-href="'+data['results'][prop]['url']+'" href="' + data['results'][prop]['log_url'] + '">'+data['results'][prop]['title']+'</a>';
-				htmlString += '<span class="badge alert-success pull-right">' + data['results'][prop]['score'] + '</span></p>';
+				htmlString += '<a target="_blank" data-rank="'+results[prop]['rank']+'" href="http://'+host+'/log?redirect_url=' + results[prop]['url']+'&rank='+ results[prop]['rank']+'&query_id='+data['query_id']+ '">'+results[prop]['title']+'</a>';
+				htmlString += '<span class="badge alert-success pull-right">' + results[prop]['score'] + '</span></p>';
 				htmlString += '<div class="div-link"><small class="link" >' + 'some link' + '</small>';
-				htmlString += '</div><small>' + data['results'][prop]['snippet'] + '</small></div><hr class="results-bottom">';
+				htmlString += '</div><small>' + results[prop]['snippet'] + '</small></div><hr class="results-bottom">';
 			}
 			$('#'+method+'-results').html(htmlString);
 			$('#'+method+'-nav').data('queryid', data['query_id']);
