@@ -54,6 +54,7 @@ docs/_build/
 dataset/*
 indices/*
 errors/*
+query_server/cache/*
 *parsetab.py
 parser.out
-
+*.pickle
