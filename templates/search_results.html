@@ -102,12 +102,10 @@
 			scoring_method: method,
 			start_rank: rank
 		}, function(data) {
-			console.log(data);
 			var htmlString = "";
 			results = JSON.parse(data['results']);
 			console.log(results)
 			for (var prop in results) {
-				console.log(prop)
 				htmlString += '<div class="result-div"> <p class="lead">';
 				htmlString += '<a target="_blank" data-rank="'+results[prop]['rank']+'" href="http://'+host+'/log?redirect_url=' + results[prop]['url']+'&rank='+ results[prop]['rank']+'&query_id='+data['query_id']+ '">'+results[prop]['title']+'</a>';
 				htmlString += '<span class="badge alert-success pull-right">' + results[prop]['score'] + '</span></p>';
@@ -121,9 +119,9 @@
 			numberOfPages = data['total_results']/10;
 			activePage = Math.max(data['start_rank']/10,1);
 			$('#'+method+'-nav').bootpag({
-			   total: numberOfPages,
-			   page: activePage,
-			   maxVisible: 5
+				total: numberOfPages,
+				page: activePage,
+				maxVisible: 5
 			});
 			$('#'+method+'-wait').hide();
 		});
@@ -135,11 +133,6 @@
 			results = regex.exec(location.search);
 		return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 	};
-
-	$('input[name="stop"]').change(function() {
-		console.log('chan');
-		$('#stopWords').val($(this).val())
-	});
 </script>
 {% endblock %}
 

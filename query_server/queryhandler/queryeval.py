@@ -15,11 +15,9 @@ class QueryEvaluator:
 		self.length_data = None;
 
 	def load_indices(self, indices_file_list):
-		print "start"
 		self.indices = []
 		for indexFile in indices_file_list:
 			self.indices.append(shelve.open(indexFile))
-			print "one"
 
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
 		self.index = dict()
@@ -161,7 +159,7 @@ class QueryEvaluator:
 		if len(ph)==0:
 			return score
 		if self.index.has_key(ph[0]):
-0			postlist = self.index[ph[0]]
+			postlist = self.index[ph[0]]
 			for document in postlist:
 				count = 0
 				for pos in self.index[ph[0]][document]:
