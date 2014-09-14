@@ -54,9 +54,7 @@ def search():
 		stats = cached.get_cached_stats(query_id)
 		results_length = stats['results_length']
 		processing_time = stats['processing_time']
-	print query_id, num_results, scoring_method, stop_words, stemming, query_string
-	results = html_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
-
+	results = json_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
 	if(callback ==  ''):
 		return results
 	else:

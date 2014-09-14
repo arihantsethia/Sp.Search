@@ -196,7 +196,11 @@ class QueryParser:
 		global query_eval
 		query_eval = self.query_evaluator
 		gmode = mode
+<<<<<<< HEAD
 		print query_string
 		
 		return yacc.parse(query_string)
 
+=======
+		return yacc.parse(query_string)
+>>>>>>> irrelevant print statements removed

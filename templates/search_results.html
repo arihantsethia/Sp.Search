@@ -104,7 +104,6 @@
 		}, function(data) {
 			var htmlString = "";
 			results = JSON.parse(data['results']);
-			console.log(results)
 			for (var prop in results) {
 				htmlString += '<div class="result-div"> <p class="lead">';
 				htmlString += '<a target="_blank" data-rank="'+results[prop]['rank']+'" href="http://'+host+'/log?redirect_url=' + results[prop]['url']+'&rank='+ results[prop]['rank']+'&query_id='+data['query_id']+ '">'+results[prop]['title']+'</a>';
