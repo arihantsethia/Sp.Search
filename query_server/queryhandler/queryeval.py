@@ -16,12 +16,8 @@ class QueryEvaluator:
 
 	def load_indices(self, indices_file_list):
 		self.indices = []
-		
 		for indexFile in indices_file_list:
 			self.indices.append(shelve.open(indexFile))
-			
-		
-			
 
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
 		self.index = dict()

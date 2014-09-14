@@ -12,5 +12,4 @@ app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.register_blueprint(views)
 
 if __name__ == '__main__':
-	#init_query_parser()
 	app.run(host='0.0.0.0',debug=True)
