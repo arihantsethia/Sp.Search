@@ -67,6 +67,7 @@ def log():
 	query_id = request.args.get('query_id', '')
 	redirect_url = request.args.get('redirect_url', '')
 	rank = request.args.get('rank', '')
+	app.logger.info('query_id: '+query_id+' rank: '+rank+' redirect_url :'+redirect_url)
 	return redirect(redirect_url);
 
 if __name__ == '__main__':

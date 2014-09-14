@@ -21,7 +21,6 @@ class QueryEvaluator:
 
 	def load_query_items (self, query_terms, include_stop_words, include_stemming):
 		self.index = dict()
-		print query_terms
 		pos = 0
 		if include_stemming and (not include_stop_words):
 			pos = 0
@@ -32,7 +31,6 @@ class QueryEvaluator:
 		elif (not include_stemming) and include_stop_words:
 			pos = 3
 		for term in query_terms:
-			print pos
 			if self.indices[pos].has_key(term):
 				self.index[term] = self.indices[pos][term]
 		
