@@ -57,7 +57,7 @@ def search():
 		stats = cache.get_cached_stats(query_id)
 		results_length = stats['results_length']
 		processing_time = stats['processing_time']
-	results = json_utils.generate_json(query_id, rank_list, 'query', scoring_method, processing_time, results_length, start_rank)
+	results = json_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
 	print "done"
 	if(callback ==  ''):
 		return results

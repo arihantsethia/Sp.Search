@@ -60,27 +60,17 @@ def generate_json_rank_list(rank_list, query_string, start_rank):
 	rank = start_rank
 	for (doc_id, score) in rank_list:
 		folder_numer = int(doc_id)/10000
-<<<<<<< HEAD
-		with open(dataset_dir+str(folder_numer)+str(doc_id)) as content_file:
-=======
 		with open(dataset_dir+str(folder_numer)+'/'+str(doc_id)) as content_file:
->>>>>>>  Final Server
 			html_content = content_file.read().lower()
 		data = {}
 		data['title'] = get_title(html_content).decode('utf8','replace').encode('utf8')
 		data['url'] = 'http://172.16.27.36:5000/static/dataset/'+ str(int(doc_id)/10000)+'/'+str(doc_id)
 		data['score'] = str(score)
 		data['rank'] = str(rank)
-<<<<<<< HEAD
-		data['snippet'] = highlight_relevant_text(html_string, clean_string(query_string))
-=======
 		data['snippet'] = ' '
 		#data['snippet'] = highlight_relevant_text(query_string, clean_string(query_string))
->>>>>>>  Final Server
 		rank += 1
-		#rank_list_json += json.dumps(data) + ','
 		rank_list_json.append(data)
-	#rank_list_json += ']'
 	return rank_list_json
 
 def generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank):
