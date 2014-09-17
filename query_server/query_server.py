@@ -34,7 +34,8 @@ def init_query_parser():
 @app.route('/search', methods=['GET'])
 def search():
 	callback = request.args.get('callback', '')
-	query_string = request.args.get('query', '')
+	query_string = str(request.args.get('query', ''))
+	print query_string
 	stemming = True if request.args.get('stemming','Y') == 'Y' else False
 	stop_words = True if request.args.get('stop_words','N') == 'Y' else False
 	scoring_method = request.args.get('scoring_method','tf')
@@ -53,10 +54,11 @@ def search():
 		rank_list = rank_list[start_rank: start_rank+num_results]
 	else :
 		rank_list = cache.get_cached(query_id, start_rank, num_results)
-		stats = cached.get_cached_stats(query_id)
+		stats = cache.get_cached_stats(query_id)
 		results_length = stats['results_length']
 		processing_time = stats['processing_time']
-	results = json_utils.generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank)
+	results = json_utils.generate_json(query_id, rank_list, 'query', scoring_method, processing_time, results_length, start_rank)
+	print "done"
 	if(callback ==  ''):
 		return results
 	else:

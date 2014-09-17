@@ -1,7 +1,13 @@
 import json, os
 import re, nltk
 
-dataset_dir = '/home/arihant/Github/Sp.Search/dataset/'
+dataset_dir = '/home/arihant/Github/Sp.Search/static/dataset/'
+titleRE = re.compile("<title>(.+?)</title>")
+
+def clean_string(query_string):
+	query_string = query_string.lower()
+	query_string = re.sub(r'[^a-z0-9 ]',' ',query_string)
+	return query_string
 
 def clean_string(query_string):
 	query_string = query_string.lower()
@@ -43,32 +49,46 @@ def highlight_relevant_text(html_string, query_string):
 	return context
 
 def get_title(html_string):
-	return re.search("<title>.*</title>",html_string).group(0)[7:-8]
+	if titleRE.search(html_string) is None:
+		return "Title"
+	data = titleRE.search(html_string).group(1)
+	info = (data[:45] + '..') if len(data) > 45 else data
+	return info
 
 def generate_json_rank_list(rank_list, query_string, start_rank):
-	rank_list_json = '['
+	rank_list_json = []
 	rank = start_rank
 	for (doc_id, score) in rank_list:
 		folder_numer = int(doc_id)/10000
+<<<<<<< HEAD
 		with open(dataset_dir+str(folder_numer)+str(doc_id)) as content_file:
+=======
+		with open(dataset_dir+str(folder_numer)+'/'+str(doc_id)) as content_file:
+>>>>>>>  Final Server
 			html_content = content_file.read().lower()
 		data = {}
-		data['title'] = get_title(html_content)
-		data['url'] = 'file://'+ data['results'][prop]['score'] + str(doc_id/10000)+'/'+str(doc_id)
+		data['title'] = get_title(html_content).decode('utf8','replace').encode('utf8')
+		data['url'] = 'http://172.16.27.36:5000/static/dataset/'+ str(int(doc_id)/10000)+'/'+str(doc_id)
 		data['score'] = str(score)
 		data['rank'] = str(rank)
+<<<<<<< HEAD
 		data['snippet'] = highlight_relevant_text(html_string, clean_string(query_string))
+=======
+		data['snippet'] = ' '
+		#data['snippet'] = highlight_relevant_text(query_string, clean_string(query_string))
+>>>>>>>  Final Server
 		rank += 1
-		rank_list_json += json.dumps(data) + ','
-	rank_list_json += ']'
+		#rank_list_json += json.dumps(data) + ','
+		rank_list_json.append(data)
+	#rank_list_json += ']'
 	return rank_list_json
 
 def generate_json(query_id, rank_list, query_string, scoring_method, processing_time, results_length, start_rank):
 	result = dict()
 	result['query_id'] = str(query_id)
 	result['scoring_method'] = str(scoring_method)
-	result['start_rank'] = start_rank
+	result['start_rank'] = int(start_rank)
 	result['time'] = str(processing_time)
-	result['total_result'] = str(results_length)
+	result['total_result'] = int(results_length)
 	result['results'] = generate_json_rank_list(rank_list, query_string, start_rank)
 	return json.dumps(result)

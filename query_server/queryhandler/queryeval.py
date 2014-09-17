@@ -31,8 +31,13 @@ class QueryEvaluator:
 		elif (not include_stemming) and include_stop_words:
 			pos = 3
 		for term in query_terms:
+<<<<<<< HEAD
 			if self.indices[pos].has_key(term):
 				self.index[term] = self.indices[pos][term]
+=======
+			if self.indices[pos].has_key(term.encode('utf-8')):
+				self.index[term.encode('utf-8')] = self.indices[pos][term.encode('utf-8')]
+>>>>>>>  Final Server
 		
 		return
 

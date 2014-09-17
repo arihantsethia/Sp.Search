@@ -21,7 +21,7 @@ def get_cached(query_id, start_rank, num_results):
 		for i, line in enumerate(fp):
 			if i > start_rank and i <= (start_rank + num_results):
 				line_parts = line.split()
-				results_list.append(line_parts[0],line_parts[1])
+				results_list.append((line_parts[0],line_parts[1]))
 			elif i > (start_rank + num_results):
 				break
 		fp.close()

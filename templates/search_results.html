@@ -27,7 +27,7 @@
 				</div>
 				<div class="form-group">
 					<label class="filter-col" style="margin-right:0;" for="pref-orderby">Stop Words:</label>
-					<div id="radioBtn" class="btn-group radioBtn" name="stop">
+					<div id="radioBtn" class="btn-group radioBtn">
 						<a class="btn btn-primary btn-sm notActive" data-toggle="stop_words" data-title="Y">YES</a>
 						<a class="btn btn-primary btn-sm active" data-toggle="stop_words" data-title="N">NO</a>
 					</div>
@@ -82,7 +82,11 @@
 		get_results('tfidf');
 		get_results('bm-25');
 		$('.pagination').on('page', function(event, num){
-			get_results($(this).data()['method'], num*10, 10);
+			get_results($(this).data()['method'], (num-1)*10, 10);
+		});
+
+		$('.redirect').on('click', function(event){
+			console("asdf", $(this));
 		});
 	});
 
@@ -96,33 +100,34 @@
 		hostname = window.location.hostname;
 		port = 1234;
 		$.getJSON('http://'+hostname+':'+port+'/search?callback=?', {
+			query_id: $('#'+method+'-results').data()['queryid'],
 			query: getParameterByName('query'),
 			stemming: getParameterByName('stemming'),
-			stop_wsords: getParameterByName('stop_words'),
+			stop_words: getParameterByName('stop_words'),
 			scoring_method: method,
 			start_rank: rank
 		}, function(data) {
+			$('#'+method+'-wait').hide();
 			var htmlString = "";
-			results = JSON.parse(data['results']);
+			results = data['results'];
 			for (var prop in results) {
-				htmlString += '<div class="result-div"> <p class="lead">';
-				htmlString += '<a target="_blank" data-rank="'+results[prop]['rank']+'" href="http://'+host+'/log?redirect_url=' + results[prop]['url']+'&rank='+ results[prop]['rank']+'&query_id='+data['query_id']+ '">'+results[prop]['title']+'</a>';
+				htmlString += '<div class="result-div"> <p class="lead text-capitalize">';
+				htmlString += '<a class="redirect" target="_blank" data-rank="'+results[prop]['rank']+'" href="http://'+hostname+':'+1234+'/log?redirect_url=' + results[prop]['url']+'&rank='+ results[prop]['rank']+'&query_id='+data['query_id']+ '">'+results[prop]['title']+'</a>';
 				htmlString += '<span class="badge alert-success pull-right">' + results[prop]['score'] + '</span></p>';
-				htmlString += '<div class="div-link"><small class="link" >' + 'some link' + '</small>';
+				htmlString += '<div class="div-link"><a class="link" target="_blank" href="'+results[prop]['url']+'">' + results[prop]['url'] + '</small>';
 				htmlString += '</div><small>' + results[prop]['snippet'] + '</small></div><hr class="results-bottom">';
 			}
 			$('#'+method+'-results').html(htmlString);
-			$('#'+method+'-nav').data('queryid', data['query_id']);
-			$('#'+method+'-records').html(data['total_results']);
+			$('#'+method+'-results').data('queryid', data['query_id']);
+			$('#'+method+'-records').html(data['total_result']);
 			$('#'+method+'-time').html(data['time']);
-			numberOfPages = data['total_results']/10;
-			activePage = Math.max(data['start_rank']/10,1);
+			numberOfPages = parseInt(data['total_result'])/10;
+			activePage = Math.max(parseInt(data['start_rank'])/10+1,1);
 			$('#'+method+'-nav').bootpag({
 				total: numberOfPages,
 				page: activePage,
 				maxVisible: 5
-			});
-			$('#'+method+'-wait').hide();
+			});			
 		});
 	}
 
